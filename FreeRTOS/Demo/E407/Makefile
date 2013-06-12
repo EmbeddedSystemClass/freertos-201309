@@ -130,7 +130,7 @@ MKDEP =	$(DEPEND) $< |							\
 #----- Cleanup ----------------------------------------------------------------
 
 clean:
-		rm -f $(OBJS)
+		rm -f $(OBJS) $(OBJS:.o=.d)
 		rm -f $(STARTUP_S) $(SYSTEM_C)
 		rm -f $(LD_SCRIPT)
 		rm -f $(NAME).elf $(NAME).bin
