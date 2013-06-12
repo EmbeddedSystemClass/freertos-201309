@@ -167,4 +167,4 @@ clean:
 
 spotless:	clean
 		rm -rf $(DEMO_DIR)
-		rm -f $(DEMO_ZIP)
+		@echo "Consider to  rm -f $(DEMO_ZIP)"
