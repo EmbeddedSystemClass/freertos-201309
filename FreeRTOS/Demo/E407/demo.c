@@ -75,6 +75,9 @@ void vApplicationStackOverflowHook(xTaskHandle pxTask, signed char *pcTaskName)
  * these nasties.
  */
 
+#include <stdarg.h>
+
+
 void *memcpy(void *dest, const void *src, size_t n)
 {
 	void *ret = dest;
@@ -90,16 +93,19 @@ void *memset(void *s, int c, size_t n)
 	void *ret = s;
 
 	while (n--)
-		*(uint8_t *) s++ = c;
+		*(int8_t *) s++ = c;
 	return ret;
 }
 
 
 int memcmp(const void *s1, const void *s2, size_t n)
 {
+	int d;
+
 	while (n--) {
-		if (*(const uint8_t *) s1 == *(const uint8_t *) s2)
-			return *(const uint8_t *) s1-*(const uint8_t *) s2;
+		d = *(const uint8_t *) s1 - *(const uint8_t *) s2;
+		if (d)
+			return d;
 		s1++;
 		s2++;
 	}
@@ -133,7 +139,25 @@ char *strncpy(char *dest, const char *src, size_t n)
 }
 
 
-void __sprintf_chk(void)
+int __sprintf_chk(char *s, int flag, size_t slen, const char *format, ...)
 {
-	/* @@@ */
+	va_list ap;
+	int ret;
+
+	va_start(ap, format);
+	ret = __builtin___vsprintf_chk(s, flag, slen, format, ap);
+	va_end(ap);
+	return ret;
+}
+
+
+/*
+ * @@@ __builtin___vsprintf_chk may loop back to __vsprintf_chk. Not sure if
+ * this works.
+ */
+
+int __vsprintf_chk(char *s, int flag, size_t slen, const char *format,
+    va_list ap)
+{
+	return __builtin___vsprintf_chk(s, flag, slen, format, ap);
 }

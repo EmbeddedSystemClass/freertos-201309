@@ -15,7 +15,7 @@ CHIP_FAMILY = STM32F4xx
 # http://www.freertos.org/FreeRTOS_Support_Forum_Archive/October_2011/freertos_STM32F4_with_FPU_4761747.html
 #
 # -nostdlib: prevent the toolchain from picking up things from libc (which
-# triggers an assertion failure in ld)
+# could trigger an assertion failure in ld)
 #
 
 CFLAGS = -Wall -Os \
