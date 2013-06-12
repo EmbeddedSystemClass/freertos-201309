@@ -41,7 +41,8 @@ int main(void)
 
 void vParTestToggleLED(unsigned long ulLED)
 {
-	GPIOC->ODR ^= 1 << 13;		/* toggle PC13 */
+	if (ulLED == 0)
+		GPIOC->ODR ^= 1 << 13;		/* toggle PC13 */
 }
 
 
