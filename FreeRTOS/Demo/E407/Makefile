@@ -24,7 +24,7 @@ CFLAGS = -Wall -mcpu=cortex-m4 -march=armv7e-m -mthumb \
 	-I$(DEMO_DIR)/Libraries/CMSIS/Device/ST/STM32F4xx/Include \
 	-I$(DEMO_DIR)/Libraries/CMSIS/Include
 
-LDFLAGS = -nostartfiles -T$(LD_SCRIPT)
+LDFLAGS = -nostartfiles -T$(LD_SCRIPT) -Wl,--build-id=none
 
 SRC = main.c $(SYSTEM_C)
 
@@ -65,11 +65,12 @@ endif
 all:		$(NAME).bin
 
 $(NAME).bin:	$(NAME).elf
-		$(BUILD) $(OBJCOPY) -j .text -j .data -O binary $< $@ || \
+		$(BUILD) $(OBJCOPY) -O binary $< $@ || \
 		    { rm -f $@; exit 1; }
 
 $(NAME).elf:	$(OBJS) $(STARTUP_S) $(LD_SCRIPT) Makefile
-		$(CC) $(CFLAGS) -o $@ $(OBJS) $(STARTUP_S) $(LDFLAGS)
+#		$(CC) $(CFLAGS) -o $@ $(OBJS) $(STARTUP_S) $(LDFLAGS)
+		$(CC) $(CFLAGS) -o $@ $(OBJS) $(LDFLAGS)
 
 #----- Download the ST demo builder and cherry-pick the files we need ---------
 
