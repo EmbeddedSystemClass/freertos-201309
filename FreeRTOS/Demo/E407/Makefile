@@ -29,7 +29,7 @@ CFLAGS = -Wall -Os \
 	-I../Common/include
 
 
-SRC = $(NAME).c \
+SRC = $(NAME).c libc.c \
 	stm32f4xx_misc.c \
 	$(SRC_DEMO) $(SRC_FREERTOS)
 SRC_DEMO = flash.c
