@@ -10,6 +10,6 @@ CHIP_FAMILY = STM32F4xx
 
 CFLAGS = -Wall -Os
 
-SRC = main.c
+SRC = $(NAME).c
 
 include Makefile.stm32
