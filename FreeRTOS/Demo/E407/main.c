@@ -14,7 +14,7 @@
 #include "stm32f4xx_conf.h"
 
 
-void Reset_Handler(void)
+int main(void)
 {
 	uint32_t i;
 
@@ -25,21 +25,5 @@ void Reset_Handler(void)
 		for (i = 0; i != 1000000; i++)
 			asm("");
 	}
+	return 0;
 }
-
-
-#define	MAIN		(8*4)	/* right after the vectors */
-#define	INITIAL_SP	0x80036d
-#define	NEG_INITIAL_SP	-(INITIAL_SP)
-
-uint32_t __vectors[] __attribute__((section(".isr_vector"))) = {
-	INITIAL_SP,		/* initial SP value @@@ */
-	MAIN+1,			/* reset */
-	0,                      /* NMI */
-	0,                      /* HardFault */
-	0,                      /* reserved */
-	0,                      /* reserved */
-	0,                      /* reserved */
-	NEG_INITIAL_SP-(MAIN+1),/* checksum */
-};
-

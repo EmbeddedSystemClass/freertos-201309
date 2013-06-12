@@ -69,8 +69,7 @@ $(NAME).bin:	$(NAME).elf
 		    { rm -f $@; exit 1; }
 
 $(NAME).elf:	$(OBJS) $(STARTUP_S) $(LD_SCRIPT) Makefile
-#		$(CC) $(CFLAGS) -o $@ $(OBJS) $(STARTUP_S) $(LDFLAGS)
-		$(CC) $(CFLAGS) -o $@ $(OBJS) $(LDFLAGS)
+		$(CC) $(CFLAGS) -o $@ $(OBJS) $(STARTUP_S) $(LDFLAGS)
 
 #----- Download the ST demo builder and cherry-pick the files we need ---------
 
