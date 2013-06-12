@@ -8,8 +8,45 @@
 NAME = demo
 CHIP_FAMILY = STM32F4xx
 
-CFLAGS = -Wall -Os
+#
+# -DUSE_STDPERIPH_DRIVER: make stm32f4xx_misc.c include stm32f4xx_conf.h
+#
+# -mfpu=fpv4-sp-d16 -mfloat-abi=softfp: work around vstmdbeq/vldmiaeq issue
+# http://www.freertos.org/FreeRTOS_Support_Forum_Archive/October_2011/freertos_STM32F4_with_FPU_4761747.html
+#
+# -nostdlib: prevent the toolchain from picking up things from libc (which
+# triggers an assertion failure in ld)
+#
 
-SRC = $(NAME).c
+CFLAGS = -Wall -Os \
+	-DUSE_STDPERIPH_DRIVER \
+	-mfpu=fpv4-sp-d16 -mfloat-abi=softfp \
+	-nostdlib \
+	-I. \
+	-I../../Source/include \
+	-I../../Source/portable/GCC/ARM_CM4F \
+	-I$(DEMO_DIR)/Libraries/STM32F4xx_StdPeriph_Driver/inc  \
+	-I../Common/include
+
+
+SRC = $(NAME).c \
+	stm32f4xx_misc.c \
+	$(SRC_DEMO) $(SRC_FREERTOS)
+SRC_DEMO = flash.c
+SRC_FREERTOS = list.c queue.c tasks.c timers.c \
+	port.c \
+	heap_1.c
+	
 
 include Makefile.stm32
+
+# SRC:stm32f4xx_misc
+vpath %.c $(DEMO_DIR)/Libraries/STM32F4xx_StdPeriph_Driver/src
+
+# SRC_DEMO
+vpath %.c ../Common/Minimal
+
+# SRC_FREERTOS
+vpath %.c ../../Source
+vpath %.c ../../Source/portable/GCC/ARM_CM4F
+vpath %.c ../../Source/portable/MemMang
