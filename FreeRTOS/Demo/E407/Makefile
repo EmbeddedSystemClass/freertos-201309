@@ -1,5 +1,5 @@
 #
-# Makefile - 
+# E407/Makefile - Build FreeRTOS for Olimex STM32-E407
 #
 # Developed by Werner Almesberger for Actility S.A., and
 # licensed under LGPLv2 by Actility S.A.
@@ -27,9 +27,6 @@ CFLAGS = -Wall -mcpu=cortex-m4 -march=armv7e-m -mthumb \
 LDFLAGS = -nostartfiles -T$(LD_SCRIPT) -Wl,--build-id=none
 
 SRC = main.c $(SYSTEM_C)
-
-# .../ARM_CM3/port.c (and not ARM_CM4F/port.c) because the latter uses
-# unsupported instructions
 
 OBJS = $(SRC:.c=.o)
 
@@ -79,10 +76,10 @@ $(NAME).elf:	$(OBJS) $(STARTUP_S) $(LD_SCRIPT) Makefile
 #
 
 #
-# Note that ST's ZIP contains files we can't legally redistribute, even though
-# few enough people seem to care about such details. Also note that ST only
-# provide a file of the latest version, thus not allowing us to pin a known to
-# be good version.
+# Note that ST's ZIP seems to contain files we can't legally redistribute,
+# even though few enough people seem to care about such details. Also note
+# that ST only provide a file of the latest version, thus not allowing us
+# to pin a known to be good version.
 #
 
 DEMO_DIR=STM32F2-F4_Demonstration_Builder_V1.3.0
@@ -93,8 +90,10 @@ STM_DEMO=http://www.st.com/st-web-ui/static/active/en/st_prod_software_internet/
 $(DEMO_ZIP):
 		wget $(STM_DEMO) || { rm -f $@; exit 1; }
 
-$(BUILD_DIR):	$(DEMO_ZIP)
-		unzip $< || { rm -rf $@; exit 1; }
+$(DEMO_DIR)/.unpacked: $(DEMO_ZIP)
+		rm -rf `dirname $@`
+		unzip $< || { rm -rf `dirname $@`; exit 1; }
+		touch $@
 
 $(STARTUP_S):	$(TEMPL)/gcc_ride7/$(STARTUP_S)
 		$(CP) $< $@ || { rm -f $@; exit 1; }
@@ -104,6 +103,10 @@ $(SYSTEM_C):	$(TEMPL)/$(SYSTEM_C)
 
 $(LD_SCRIPT):	$(DEMO_DIR)/Project/TrueSTUDIO/STM324xG-EVAL/STM32F407IG_FLASH.ld
 		$(CP) $< $@ || { rm -f $@; exit 1; }
+
+$(OBJS) $(TEMPL)/gcc_ride7/$(STARTUP_S) $(TEMPL)/$(SYSTEM_C) \
+  $(DEMO_DIR)/Project/TrueSTUDIO/STM324xG-EVAL/STM32F407IG_FLASH.ld: \
+		    $(DEMO_DIR)/.unpacked
 
 #----- Flash firmware with DFU ------------------------------------------------
 
@@ -136,5 +139,5 @@ clean:
 		rm -f $(NAME).elf $(NAME).bin
 
 spotless:	clean
-		rm -f STM32F2-F4_Demonstration_Builder_V1.3.0
+		rm -rf STM32F2-F4_Demonstration_Builder_V1.3.0
 		rm -f $(DEMO_ZIP)
