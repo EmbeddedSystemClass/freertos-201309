@@ -30,23 +30,16 @@ CFLAGS = -Wall -Os \
 
 
 SRC = $(NAME).c libc.c \
-	stm32f4xx_misc.c \
+	$(DEMO_DIR)/Libraries/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_misc.c \
 	$(SRC_DEMO) $(SRC_FREERTOS)
-SRC_DEMO = flash.c
-SRC_FREERTOS = list.c queue.c tasks.c timers.c \
-	port.c \
-	heap_1.c
-	
+SRC_DEMO = \
+	../Common/Minimal/flash.c
+SRC_FREERTOS = \
+	../../Source/list.c \
+	../../Source/queue.c \
+	../../Source/tasks.c \
+	../../Source/timers.c \
+	../../Source/portable/GCC/ARM_CM4F/port.c \
+	../../Source/portable/MemMang/heap_1.c
 
 include Makefile.stm32
-
-# SRC:stm32f4xx_misc
-vpath %.c $(DEMO_DIR)/Libraries/STM32F4xx_StdPeriph_Driver/src
-
-# SRC_DEMO
-vpath %.c ../Common/Minimal
-
-# SRC_FREERTOS
-vpath %.c ../../Source
-vpath %.c ../../Source/portable/GCC/ARM_CM4F
-vpath %.c ../../Source/portable/MemMang

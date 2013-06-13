@@ -41,6 +41,23 @@ endif
 
 CHIP_FAMILY_UC = $(shell echo $(CHIP_FAMILY) | tr a-z A-Z)
 
+#
+# STSW-STM32106STM32F2 and STM32F4 demonstration builder platform
+# http://www.st.com/web/catalog/tools/FM147/CL1794/SC961/SS1743/PF258142
+#
+
+#
+# Note that ST's ZIP seems to contain files we can't legally redistribute,
+# even though few enough people seem to care about such details. Also note
+# that ST only provide a file of the latest version, thus not allowing us
+# to pin a known to be good version.
+#
+
+DEMO_DIR=STM32F2-F4_Demonstration_Builder_V1.3.0
+DEMO_ZIP=stm32f2-f4_demobuild.zip
+TEMPL=$(DEMO_DIR)/Libraries/CMSIS/Device/ST/$(CHIP_FAMILY)/Source/Templates/
+STM_DEMO=http://www.st.com/st-web-ui/static/active/en/st_prod_software_internet/resource/technical/software/firmware/$(DEMO_ZIP)
+
 CFLAGS_STM32 = -mthumb \
 	-D$(CHIP_FAMILY_UC) \
 	-I$(DEMO_DIR)/Project/Core/Devices/$(CHIP_FAMILY)\
@@ -97,23 +114,6 @@ $(NAME).elf:	$(OBJS) $(STARTUP_S) $(LD_SCRIPT) Makefile
 
 #----- Download the ST demo builder and cherry-pick the files we need ---------
 
-#
-# STSW-STM32106STM32F2 and STM32F4 demonstration builder platform
-# http://www.st.com/web/catalog/tools/FM147/CL1794/SC961/SS1743/PF258142
-#
-
-#
-# Note that ST's ZIP seems to contain files we can't legally redistribute,
-# even though few enough people seem to care about such details. Also note
-# that ST only provide a file of the latest version, thus not allowing us
-# to pin a known to be good version.
-#
-
-DEMO_DIR=STM32F2-F4_Demonstration_Builder_V1.3.0
-DEMO_ZIP=stm32f2-f4_demobuild.zip
-TEMPL=$(DEMO_DIR)/Libraries/CMSIS/Device/ST/$(CHIP_FAMILY)/Source/Templates/
-STM_DEMO=http://www.st.com/st-web-ui/static/active/en/st_prod_software_internet/resource/technical/software/firmware/$(DEMO_ZIP)
-
 $(DEMO_ZIP):
 		wget $(STM_DEMO) || { rm -f $@; exit 1; }
 
@@ -152,7 +152,7 @@ MKDEP =	$(DEPEND) $< |							\
 	  { rm -f $(basename $@).d; exit 1; }
 
 %.o:            %.c
-		$(CC) $(CFLAGS_ALL) -c $<
+		$(CC) $(CFLAGS_ALL) -o $@ -c $<
 		$(MKDEP)
 
 -include $(OBJS:.o=.d)
