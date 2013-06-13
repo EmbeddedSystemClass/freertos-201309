@@ -156,12 +156,12 @@ MKDEP =	$(DEPEND) $< |							\
 
 #----- Cleanup ----------------------------------------------------------------
 
-clean:
+clean::
 		rm -f $(OBJS) $(OBJS:.o=.d)
 		rm -f $(STARTUP_S) $(SYSTEM_C)
 		rm -f $(LD_SCRIPT)
 		rm -f $(NAME).elf $(NAME).bin
 
-spotless:	clean
+spotless::	clean
 		rm -rf $(DEMO_DIR)
 		@echo "Consider to  rm -f $(DEMO_ZIP)"

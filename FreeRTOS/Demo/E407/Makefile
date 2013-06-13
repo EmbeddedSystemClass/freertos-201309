@@ -39,3 +39,12 @@ SRC = $(NAME).c libc.c \
 	../../Source/portable/MemMang/heap_1.c
 
 include Makefile.stm32
+
+$(NAME).o:	FreeRTOSConfig.h
+
+FreeRTOSConfig.h: ../CORTEX_M4F_STM32F407ZG-SK/FreeRTOSConfig.h
+		$(BUILD) sed s/__ICCARM__/__GNUC__/ $< >$@ || \
+		    { rm -f $@; exit 1; }
+
+clean::
+		rm -f FreeRTOSConfig.h
