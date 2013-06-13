@@ -28,13 +28,9 @@ CFLAGS = -Wall -Os \
 	-I$(DEMO_DIR)/Libraries/STM32F4xx_StdPeriph_Driver/inc  \
 	-I../Common/include
 
-
 SRC = $(NAME).c libc.c \
 	$(DEMO_DIR)/Libraries/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_misc.c \
-	$(SRC_DEMO) $(SRC_FREERTOS)
-SRC_DEMO = \
-	../Common/Minimal/flash.c
-SRC_FREERTOS = \
+	../Common/Minimal/flash.c \
 	../../Source/list.c \
 	../../Source/queue.c \
 	../../Source/tasks.c \
