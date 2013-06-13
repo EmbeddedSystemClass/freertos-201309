@@ -76,7 +76,6 @@ SRC += $(PATH_SYSTEM_C)
 OBJS = $(SRC:.c=.o)
 
 .PHONY:	all dfu clean spotless
-.PHONY:	demobuilder
 
 # ----- Verbosity control -----------------------------------------------------
 
