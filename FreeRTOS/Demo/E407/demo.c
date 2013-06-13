@@ -17,6 +17,10 @@
 
 #include "stm32f4xx_conf.h"
 
+#include <stdarg.h>
+#include <stdio.h>
+#include <alloca.h>
+
 
 #define mainFLASH_TASK_PRIORITY		(tskIDLE_PRIORITY + 1UL)
 
@@ -95,11 +99,36 @@ static void print(const char *s)
 }
 
 
+static void printk(const char *fmt, ...)
+{
+	va_list ap;
+	char *buf;
+	int n;
+
+	va_start(ap, fmt);
+	n = vsprintf(NULL, fmt, ap);
+	va_end(ap);
+
+	buf = alloca(n+1);
+//	buf = pvPortMalloc(n+1);
+
+	va_start(ap, fmt);
+	vsprintf(buf, fmt, ap);
+	va_end(ap);
+
+	print(buf);
+
+//	vPortFree(buf);
+}
+
+
 void vParTestToggleLED(unsigned long ulLED)
 {
+	static int n = 0;
+
 	if (ulLED == 0) {
 		GPIOC->ODR ^= 1 << 13;		/* toggle PC13 */
-		print("hello\n");
+		printk("hello %d\n", n++);
 	}
 }
 
