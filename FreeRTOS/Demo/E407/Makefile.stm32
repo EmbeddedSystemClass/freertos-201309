@@ -58,6 +58,10 @@ DEMO_ZIP=stm32f2-f4_demobuild.zip
 TEMPL=$(DEMO_DIR)/Libraries/CMSIS/Device/ST/$(CHIP_FAMILY)/Source/Templates/
 STM_DEMO=http://www.st.com/st-web-ui/static/active/en/st_prod_software_internet/resource/technical/software/firmware/$(DEMO_ZIP)
 
+PATH_STARTUP_S = $(TEMPL)/gcc_ride7/$(STARTUP_S)
+PATH_SYSTEM_C = $(TEMPL)/$(SYSTEM_C)
+PATH_LD_SCRIPT = $(DEMO_DIR)/$(LD_SCRIPT_DIR)/$(LD_SCRIPT)
+
 CFLAGS += -mthumb \
 	-D$(CHIP_FAMILY_UC) \
 	-I$(DEMO_DIR)/Project/Core/Devices/$(CHIP_FAMILY)\
@@ -65,9 +69,9 @@ CFLAGS += -mthumb \
 	-I$(DEMO_DIR)/Libraries/CMSIS/Device/ST/$(CHIP_FAMILY)/Include \
 	-I$(DEMO_DIR)/Libraries/CMSIS/Include
 
-LDFLAGS = -nostartfiles -T$(LD_SCRIPT) -Wl,--build-id=none
+LDFLAGS = -nostartfiles -T$(PATH_LD_SCRIPT) -Wl,--build-id=none
 
-SRC += $(SYSTEM_C)
+SRC += $(PATH_SYSTEM_C)
 
 OBJS = $(SRC:.c=.o)
 
@@ -106,10 +110,10 @@ $(NAME).bin:	$(NAME).elf
 		$(BUILD) $(OBJCOPY) -O binary $< $@ || \
 		    { rm -f $@; exit 1; }
 
-$(NAME).elf:	$(OBJS) $(STARTUP_S) $(LD_SCRIPT) Makefile
-		$(CC) $(CFLAGS) -o $@ $(OBJS) $(STARTUP_S) $(LDFLAGS)
+$(NAME).elf:	$(OBJS) $(PATH_STARTUP_S) $(PATH_LD_SCRIPT) Makefile
+		$(CC) $(CFLAGS) -o $@ $(OBJS) $(PATH_STARTUP_S) $(LDFLAGS)
 
-#----- Download the ST demo builder and cherry-pick the files we need ---------
+#----- Download and unpack the ST demo builder --------------------------------
 
 $(DEMO_ZIP):
 		wget $(STM_DEMO) || { rm -f $@; exit 1; }
@@ -119,17 +123,7 @@ $(DEMO_DIR)/.unpacked: $(DEMO_ZIP)
 		unzip $< || { rm -rf `dirname $@`; exit 1; }
 		touch $@
 
-$(STARTUP_S):	$(TEMPL)/gcc_ride7/$(STARTUP_S)
-		$(CP) $< $@ || { rm -f $@; exit 1; }
-
-$(SYSTEM_C):	$(TEMPL)/$(SYSTEM_C)
-		$(CP) $< $@ || { rm -f $@; exit 1; }
-
-$(LD_SCRIPT):	$(DEMO_DIR)/$(LD_SCRIPT_DIR)/$(LD_SCRIPT)
-		$(CP) $< $@ || { rm -f $@; exit 1; }
-
-$(OBJS) $(TEMPL)/gcc_ride7/$(STARTUP_S) $(TEMPL)/$(SYSTEM_C) \
-		    $(DEMO_DIR)/$(LD_SCRIPT_DIR)/$(LD_SCRIPT): \
+$(OBJS) $(PATH_STARTUP_S) $(PATH_SYSTEM_C) $(PATH_LD_SCRIPT): \
 		    $(DEMO_DIR)/.unpacked
 
 #----- Flash firmware with DFU ------------------------------------------------
@@ -158,8 +152,6 @@ MKDEP =	$(DEPEND) $< |							\
 
 clean::
 		rm -f $(OBJS) $(OBJS:.o=.d)
-		rm -f $(STARTUP_S) $(SYSTEM_C)
-		rm -f $(LD_SCRIPT)
 		rm -f $(NAME).elf $(NAME).bin
 
 spotless::	clean
