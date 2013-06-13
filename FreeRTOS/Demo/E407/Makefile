@@ -28,10 +28,16 @@ CFLAGS = -Wall -Os \
 	-I$(DEMO_DIR)/Libraries/STM32F4xx_StdPeriph_Driver/inc  \
 	-I../Common/include
 
+GPIO_C = $(DEMO_DIR)/Libraries/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_gpio.c
 MISC_C = $(DEMO_DIR)/Libraries/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_misc.c
+RCC_C = $(DEMO_DIR)/Libraries/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_rcc.c
+UART_C = $(DEMO_DIR)/Libraries/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_usart.c
 
 SRC = $(NAME).c libc.c \
+	$(GPIO_C) \
 	$(MISC_C) \
+	$(RCC_C) \
+	$(UART_C) \
 	../Common/Minimal/flash.c \
 	../../Source/list.c \
 	../../Source/queue.c \
@@ -42,7 +48,10 @@ SRC = $(NAME).c libc.c \
 
 include Makefile.stm32
 
+$(GPIO_C):	$(DEMOBUILDER)
 $(MISC_C):	$(DEMOBUILDER)
+$(RCC_C):	$(DEMOBUILDER)
+$(UART_C):	$(DEMOBUILDER)
 
 $(NAME).o:	FreeRTOSConfig.h
 
