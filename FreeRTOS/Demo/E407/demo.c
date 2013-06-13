@@ -5,7 +5,7 @@
  * licensed under LGPLv2 by Actility S.A.
  *
  * Based on ../CORTEX_R4_RM48_TMS570_CCS5/main.c and
- * ../CORTEX_M4F_STM32F407ZG/main.c
+ * ../CORTEX_M4F_STM32F407ZG-SK/main.c
  */
 
 
@@ -21,7 +21,15 @@
 #define mainFLASH_TASK_PRIORITY		(tskIDLE_PRIORITY + 1UL)
 
 
-int main(void)
+static void init_led(void)
+{
+	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);
+	GPIOC->MODER = 1 << 26;			/* make PC13 an output */
+
+}
+
+
+static void init_uart(void)
 {
 	static USART_InitTypeDef uart_init = {
 		.USART_BaudRate		= 38400,
@@ -39,14 +47,6 @@ int main(void)
 		.GPIO_PuPd	= GPIO_PuPd_NOPULL,
 	};
 
-	/* Ensure all priority bits are assigned as preemption priority bits. */
-
-	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_4);
-
-//	vParTestInitialise();
-
-	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);
-	GPIOC->MODER = 1 << 26;			/* make PC13 an output */
 
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART6, ENABLE);
 	GPIO_PinAFConfig(GPIOC, GPIO_PinSource6, GPIO_AF_USART6);
@@ -54,6 +54,22 @@ int main(void)
 
 	USART_Init(USART6, &uart_init);
 	USART_Cmd(USART6, ENABLE);
+}
+
+
+int main(void)
+{
+	/*
+	 * Ensure all priority bits are assigned as preemption priority bits.
+	 * (Taken verbatim from ../CORTEX_M4F_STM32F407ZG-SK/main.c)
+	 */
+
+	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_4);
+
+//	vParTestInitialise();
+
+	init_led();
+	init_uart();
 
 	vStartLEDFlashTasks(mainFLASH_TASK_PRIORITY);
 	vTaskStartScheduler();
