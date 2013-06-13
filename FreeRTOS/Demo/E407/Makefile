@@ -28,8 +28,10 @@ CFLAGS = -Wall -Os \
 	-I$(DEMO_DIR)/Libraries/STM32F4xx_StdPeriph_Driver/inc  \
 	-I../Common/include
 
+MISC_C = $(DEMO_DIR)/Libraries/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_misc.c
+
 SRC = $(NAME).c libc.c \
-	$(DEMO_DIR)/Libraries/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_misc.c \
+	$(MISC_C) \
 	../Common/Minimal/flash.c \
 	../../Source/list.c \
 	../../Source/queue.c \
@@ -39,6 +41,8 @@ SRC = $(NAME).c libc.c \
 	../../Source/portable/MemMang/heap_1.c
 
 include Makefile.stm32
+
+$(MISC_C):	$(DEMOBUILDER)
 
 $(NAME).o:	FreeRTOSConfig.h
 

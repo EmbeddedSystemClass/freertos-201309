@@ -76,6 +76,7 @@ SRC += $(PATH_SYSTEM_C)
 OBJS = $(SRC:.c=.o)
 
 .PHONY:	all dfu clean spotless
+.PHONY:	demobuilder
 
 # ----- Verbosity control -----------------------------------------------------
 
@@ -118,13 +119,14 @@ $(NAME).elf:	$(OBJS) $(PATH_STARTUP_S) $(PATH_LD_SCRIPT) Makefile
 $(DEMO_ZIP):
 		wget $(STM_DEMO) || { rm -f $@; exit 1; }
 
-$(DEMO_DIR)/.unpacked: $(DEMO_ZIP)
+DEMOBUILDER = $(DEMO_DIR)/.unpacked
+
+$(DEMOBUILDER):	$(DEMO_ZIP)
 		rm -rf `dirname $@`
 		unzip $< || { rm -rf `dirname $@`; exit 1; }
 		touch $@
 
-$(OBJS) $(PATH_STARTUP_S) $(PATH_SYSTEM_C) $(PATH_LD_SCRIPT): \
-		    $(DEMO_DIR)/.unpacked
+$(OBJS) $(PATH_STARTUP_S) $(PATH_SYSTEM_C) $(PATH_LD_SCRIPT): $(DEMOBUILDER)
 
 #----- Flash firmware with DFU ------------------------------------------------
 
