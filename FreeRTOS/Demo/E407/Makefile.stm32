@@ -19,7 +19,7 @@
 
 SHELL = /bin/bash
 
-ARCH = arm-linux-gnueabi
+ARCH = arm-none-eabi
 CC = $(ARCH)-gcc
 OBJCOPY = $(ARCH)-objcopy
 

@@ -82,13 +82,13 @@ char *strncpy(char *dest, const char *src, size_t n)
 }
 
 
-int __sprintf_chk(char *s, int flag, size_t slen, const char *format, ...)
+int sprintf(char *s, const char *format, ...)
 {
 	va_list ap;
 	int ret;
 
 	va_start(ap, format);
-	ret = __builtin___vsprintf_chk(s, flag, slen, format, ap);
+	ret = vsprintf(s, format, ap);
 	va_end(ap);
 	return ret;
 }
@@ -131,8 +131,7 @@ static void log_put(char *s, unsigned v, unsigned base)
 }
 
 
-int __vsprintf_chk(char *s, int flag, size_t slen, const char *format,
-    va_list ap)
+int vsprintf(char *s, const char *format, va_list ap)
 {
 //	const char *end = s+slen;
 	int n = 0, len;
