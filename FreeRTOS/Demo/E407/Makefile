@@ -20,7 +20,7 @@ CHIP_FAMILY = STM32F4xx
 
 CFLAGS = -Wall -Os \
 	-DUSE_STDPERIPH_DRIVER \
-	-mfpu=fpv4-sp-d16 -mfloat-abi=softfp \
+	-mfloat-abi=hard -mfpu=fpv4-sp-d16 \
 	-nostdlib \
 	-I. \
 	-I../../Source/include \
