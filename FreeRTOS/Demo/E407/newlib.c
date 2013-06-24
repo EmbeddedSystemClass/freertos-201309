@@ -5,13 +5,84 @@
  * licensed under LGPLv2 by Actility S.A.
  */
 
+#include <errno.h>
 #include <sys/types.h>
+#include <sys/stat.h>
 
 #include "FreeRTOS.h"
+
+#include "stm32f4xx_conf.h"
+
+
+static void put_char(char c)
+{
+	while (USART_GetFlagStatus(USART6, USART_FLAG_TXE) == RESET);
+	USART_SendData(USART6, c);
+}
+
+
+int _close(int fd)
+{
+	return 0;
+}
+
+
+int _fstat(int fd, struct stat *st)
+{
+	if (fd < 0 || fd > 2) {
+		errno = EBADF;
+		return -1;
+	}
+
+	/* according to stm32ldiscovery/newlib.c */
+	st->st_mode = S_IFCHR;
+	return 0;
+}
+
+
+int _isatty(int fd)
+{
+	if (fd >= 0 && fd <= 3)
+		return 1;
+	errno = EBADF;
+	return 0;
+}
+
+
+int _lseek(int fd, off_t offset, int whence)
+{
+	return 0;
+}
+
+
+ssize_t _read(int fd, void *buf, size_t count)
+{
+	errno = EBADF;
+	return -1;
+}
 
 
 caddr_t _sbrk(int incr)
 {
-	caddr_t tmp = (caddr_t) pvPortMalloc(incr);
-	return tmp;
+	return (caddr_t) pvPortMalloc(incr);
+}
+
+
+ssize_t _write(int fd, const void *buf, size_t count)
+{
+	ssize_t ret = count;
+
+	if (fd < 0 || fd > 2) {
+		errno = EBADF;
+		return -1;
+	}
+
+	while (count--) {
+		char c = *(const char *) buf++;
+
+		if (c == '\n')	
+			put_char('\r');
+		put_char(c);
+	}
+	return ret;
 }
