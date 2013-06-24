@@ -11,17 +11,14 @@ CHIP_FAMILY = STM32F4xx
 #
 # -DUSE_STDPERIPH_DRIVER: make stm32f4xx_misc.c include stm32f4xx_conf.h
 #
-# -mfpu=fpv4-sp-d16 -mfloat-abi=softfp: work around vstmdbeq/vldmiaeq issue
-# http://www.freertos.org/FreeRTOS_Support_Forum_Archive/October_2011/freertos_STM32F4_with_FPU_4761747.html
-#
-# -nostdlib: prevent the toolchain from picking up things from libc (which
-# could trigger an assertion failure in ld)
+# -mfloat-abi=hard -mfpu=fpv4-sp-d16: generate code for FPU and use
+# corresponding version of (multi-)newlib. This way, we're ABI-compatible
+# with Contiki.
 #
 
 CFLAGS = -Wall -Os \
 	-DUSE_STDPERIPH_DRIVER \
 	-mfloat-abi=hard -mfpu=fpv4-sp-d16 \
-	-nostdlib \
 	-I. \
 	-I../../Source/include \
 	-I../../Source/portable/GCC/ARM_CM4F \
@@ -33,7 +30,7 @@ DRV_DIR = $(DEMO_DIR)/Libraries/STM32F4xx_StdPeriph_Driver/src
 DRIVERS = gpio misc rcc usart
 DRIVERS_C = $(DRIVERS:%=$(DRV_DIR)/stm32f4xx_%.c) \
 
-SRC = $(NAME).c libc.c \
+SRC = $(NAME).c newlib.c \
 	$(DRIVERS_C) \
 	../Common/Minimal/flash.c \
 	../../Source/list.c \
@@ -49,8 +46,13 @@ $(DRIVERS_C):	$(DEMOBUILDER)
 
 $(NAME).o:	FreeRTOSConfig.h
 
+#
+# Adapt compiler name and increase configMINIMAL_STACK_SIZE from 130 to
+# 1300 bytes.
+#
+
 FreeRTOSConfig.h: ../CORTEX_M4F_STM32F407ZG-SK/FreeRTOSConfig.h
-		$(BUILD) sed s/__ICCARM__/__GNUC__/ $< >$@ || \
+		$(BUILD) sed 's/__ICCARM__/__GNUC__/;s/130/1300/' $< >$@ || \
 		    { rm -f $@; exit 1; }
 
 clean::
