@@ -16,7 +16,7 @@ CHIP_FAMILY = STM32F4xx
 # with Contiki.
 #
 
-CFLAGS = -Wall -Os \
+CFLAGS = -Wall -Os -g \
 	-DUSE_STDPERIPH_DRIVER \
 	-mfloat-abi=hard -mfpu=fpv4-sp-d16 \
 	-I. \
