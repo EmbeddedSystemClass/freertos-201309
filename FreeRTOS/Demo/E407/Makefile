@@ -55,5 +55,9 @@ FreeRTOSConfig.h: ../CORTEX_M4F_STM32F407ZG-SK/FreeRTOSConfig.h
 		$(BUILD) sed 's/__ICCARM__/__GNUC__/;s/130/1300/' $< >$@ || \
 		    { rm -f $@; exit 1; }
 
+CONTIKI = $(shell pwd)/../../../../contiki-outoftree
+OBJS += $(CONTIKI)/foo.co
+LDFLAGS += $(CONTIKI)/contiki-freertos.a
+
 clean::
 		rm -f FreeRTOSConfig.h

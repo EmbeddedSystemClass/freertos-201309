@@ -23,11 +23,13 @@
 #define mainFLASH_TASK_PRIORITY		(tskIDLE_PRIORITY + 1UL)
 
 
+extern void contiki_main(void);
+
+
 static void init_led(void)
 {
 	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);
 	GPIOC->MODER = 1 << 26;			/* make PC13 an output */
-
 }
 
 
@@ -74,6 +76,10 @@ int main(void)
 	init_uart();
 
 	vStartLEDFlashTasks(mainFLASH_TASK_PRIORITY);
+
+	xTaskCreate((pdTASK_CODE) contiki_main, (const signed char *) "CoMa",
+	  2000, NULL, tskIDLE_PRIORITY, NULL);
+
 	vTaskStartScheduler();
 
 	return 0;
