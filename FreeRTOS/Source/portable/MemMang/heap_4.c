@@ -129,7 +129,7 @@ static void prvHeapInit( void );
 
 /* The size of the structure placed at the beginning of each allocated memory
 block must by correctly byte aligned. */
-static const unsigned short heapSTRUCT_SIZE	= ( sizeof( xBlockLink ) + portBYTE_ALIGNMENT - ( sizeof( xBlockLink ) % portBYTE_ALIGNMENT ) );
+static const unsigned short heapSTRUCT_SIZE	= ( ( sizeof ( xBlockLink ) + ( portBYTE_ALIGNMENT - 1 ) ) & ~portBYTE_ALIGNMENT_MASK );
 
 /* Ensure the pxEnd pointer will end up on the correct byte alignment. */
 static const size_t xTotalHeapSize = ( ( size_t ) configADJUSTED_HEAP_SIZE ) & ( ( size_t ) ~portBYTE_ALIGNMENT_MASK );
@@ -167,7 +167,7 @@ void *pvReturn = NULL;
 
 			/* Ensure that blocks are always aligned to the required number of 
 			bytes. */
-			if( xWantedSize & portBYTE_ALIGNMENT_MASK )
+			if( ( xWantedSize & portBYTE_ALIGNMENT_MASK ) != 0x00 )
 			{
 				/* Byte alignment required. */
 				xWantedSize += ( portBYTE_ALIGNMENT - ( xWantedSize & portBYTE_ALIGNMENT_MASK ) );

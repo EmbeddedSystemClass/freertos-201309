@@ -540,9 +540,6 @@ tskTCB * pxNewTCB;
 		}
 		#endif /* portUSING_MPU_WRAPPERS */
 
-		/* Check the alignment of the initialised stack. */
-		portALIGNMENT_ASSERT_pxCurrentTCB( ( ( ( unsigned long ) pxNewTCB->pxTopOfStack & ( unsigned long ) portBYTE_ALIGNMENT_MASK ) == 0UL ) );
-
 		if( ( void * ) pxCreatedTask != NULL )
 		{
 			/* Pass the TCB out - in an anonymous way.  The calling function/
@@ -1843,12 +1840,17 @@ void vTaskSwitchContext( void )
 					ulTotalRunTime = portGET_RUN_TIME_COUNTER_VALUE();
 				#endif
 
-				/* Add the amount of time the task has been running to the accumulated
-				time so far.  The time the task started running was stored in
-				ulTaskSwitchedInTime.  Note that there is no overflow protection here
-				so count values are only valid until the timer overflows.  Generally
-				this will be about 1 hour assuming a 1uS timer increment. */
-				pxCurrentTCB->ulRunTimeCounter += ( ulTotalRunTime - ulTaskSwitchedInTime );
+				/* Add the amount of time the task has been running to the
+				accumulated	time so far.  The time the task started running was
+				stored in ulTaskSwitchedInTime.  Note that there is no overflow
+				protection here	so count values are only valid until the timer
+				overflows.  The guard against negative values is to protect
+				against suspect run time stat counter implementations - which
+				are provided by the application, not the kernel. */
+				if( ulTotalRunTime > ulTaskSwitchedInTime )
+				{
+					pxCurrentTCB->ulRunTimeCounter += ( ulTotalRunTime - ulTaskSwitchedInTime );
+				}
 				ulTaskSwitchedInTime = ulTotalRunTime;
 		}
 		#endif /* configGENERATE_RUN_TIME_STATS */
@@ -2247,14 +2249,25 @@ static portTASK_FUNCTION( prvIdleTask, pvParameters )
 
 static void prvInitialiseTCBVariables( tskTCB *pxTCB, const signed char * const pcName, unsigned portBASE_TYPE uxPriority, const xMemoryRegion * const xRegions, unsigned short usStackDepth )
 {
-	/* Store the function name in the TCB. */
-	#if configMAX_TASK_NAME_LEN > 1
+portBASE_TYPE x;
+
+	/* Store the task name in the TCB. */
+	for( x = 0; x < configMAX_TASK_NAME_LEN; x++ )
 	{
-		/* Don't bring strncpy into the build unnecessarily. */
-		strncpy( ( char * ) pxTCB->pcTaskName, ( const char * ) pcName, ( unsigned short ) configMAX_TASK_NAME_LEN );
+		pxTCB->pcTaskName[ x ] = pcName[ x ];
+
+		/* Don't copy all configMAX_TASK_NAME_LEN if the string is shorter than
+		configMAX_TASK_NAME_LEN characters just in case the memory after the
+		string is not accessible (extremely unlikely). */
+		if( pcName[ x ] == 0x00 )
+		{
+			break;
+		}
 	}
-	#endif /* configMAX_TASK_NAME_LEN */
-	pxTCB->pcTaskName[ ( unsigned short ) configMAX_TASK_NAME_LEN - ( unsigned short ) 1 ] = ( signed char ) '\0';
+
+	/* Ensure the name string is terminated in the case that the string length
+	was greater or equal to configMAX_TASK_NAME_LEN. */
+	pxTCB->pcTaskName[ configMAX_TASK_NAME_LEN - 1 ] = ( signed char ) '\0';
 
 	/* This is used as an array index so must ensure it's not too large.  First
 	remove the privilege bit if one is present. */
