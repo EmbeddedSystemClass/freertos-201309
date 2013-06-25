@@ -25,6 +25,8 @@ CFLAGS = -Wall -Os -g \
 	-I$(DEMO_DIR)/Libraries/STM32F4xx_StdPeriph_Driver/inc  \
 	-I../Common/include
 
+CFLAGS += -DFREERTOS_BUILD_DATE="\"`date`\""
+
 DRV_DIR = $(DEMO_DIR)/Libraries/STM32F4xx_StdPeriph_Driver/src
 
 DRIVERS = gpio misc rcc usart

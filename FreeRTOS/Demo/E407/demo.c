@@ -75,6 +75,8 @@ int main(void)
 	init_led();
 	init_uart();
 
+	printf("FreeRTOS Build: %s\n", FREERTOS_BUILD_DATE);
+
 	vStartLEDFlashTasks(mainFLASH_TASK_PRIORITY);
 
 	xTaskCreate((pdTASK_CODE) contiki_main, (const signed char *) "CoMa",
