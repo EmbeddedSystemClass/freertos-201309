@@ -71,7 +71,8 @@ clean::
 CONTIKI_TARGET_CPU = $(CONTIKI_TARGET_CPU_$(CHIP_FAMILY))
 CONTIKI_TARGET_CPU_STM32F4xx = cm4
 
-CONTIKI = ../../../../contiki-outoftree
+# Directory where contiki resides. Can be explicit path, subdirectory, symlink.
+CONTIKI = contiki
 OBJS += $(CONTIKI)/foo.co
 OBJS += $(CONTIKI)/contiki-freertos.a
 
