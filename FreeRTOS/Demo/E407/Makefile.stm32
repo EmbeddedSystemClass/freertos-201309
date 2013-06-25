@@ -110,7 +110,18 @@ $(NAME).bin:	$(NAME).elf
 		$(BUILD) $(OBJCOPY) -O binary $< $@ || \
 		    { rm -f $@; exit 1; }
 
-$(NAME).elf:	$(OBJS) $(PATH_STARTUP_S) $(PATH_LD_SCRIPT) Makefile
+#
+# .SECONDEXPANSION enables deferred evaluation of OBJS, so that we we change
+# it after including Makefile.stm32. That way, Makefile.stm32 can provide
+# DEMOBUILDER (which is needed relatively early in the top-level Makefile) and
+# still have valid OBJS for the rest.
+#
+# Note that other uses of OBJS, e.g., their $(DEMOBUILDER) dependency, do not
+# need to be deferred, because Contiki doesn't depend on the demo builder.
+#
+
+.SECONDEXPANSION:
+$(NAME).elf:	$$(OBJS) $(PATH_STARTUP_S) $(PATH_LD_SCRIPT) Makefile
 		$(CC) $(CFLAGS) -o $@ $(OBJS) $(PATH_STARTUP_S) $(LDFLAGS)
 
 #----- Download and unpack the ST demo builder --------------------------------

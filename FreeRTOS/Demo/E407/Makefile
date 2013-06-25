@@ -57,9 +57,34 @@ FreeRTOSConfig.h: ../CORTEX_M4F_STM32F407ZG-SK/FreeRTOSConfig.h
 		$(BUILD) sed 's/__ICCARM__/__GNUC__/;s/130/1300/' $< >$@ || \
 		    { rm -f $@; exit 1; }
 
-CONTIKI = $(shell pwd)/../../../../contiki-outoftree
-OBJS += $(CONTIKI)/foo.co
-LDFLAGS += $(CONTIKI)/contiki-freertos.a
-
 clean::
 		rm -f FreeRTOSConfig.h
+
+#####  Items for subordinate Contiki  #########################################
+
+#
+# Translate FreeRTOS chip family to Contiki-freertos target CPU selection.
+# The target CPU is something that only exists in the hybrid. In regular
+# ports, the target CPU is the same as the platform CPU. In "native" and
+# similar, the target CPU is implicitly whatever the host has.
+#
+CONTIKI_TARGET_CPU = $(CONTIKI_TARGET_CPU_$(CHIP_FAMILY))
+CONTIKI_TARGET_CPU_STM32F4xx = cm4
+
+CONTIKI = ../../../../contiki-outoftree
+OBJS += $(CONTIKI)/foo.co
+OBJS += $(CONTIKI)/contiki-freertos.a
+
+MAKE_CONTIKI = $(MAKE) -C $(CONTIKI) \
+	       TARGET=freertos CONTIKI_TARGET_CPU=$(CONTIKI_TARGET_CPU)
+
+.PHONY:		$(CONTIKI)/foo.co $(CONTIKI)/contiki-freertos.a
+
+$(CONTIKI)/foo.co:
+		$(MAKE_CONTIKI) foo.co
+
+$(CONTIKI)/contiki-freertos.a:
+		$(MAKE_CONTIKI) contiki-freertos.a
+
+clean::
+		$(MAKE_CONTIKI) clean
