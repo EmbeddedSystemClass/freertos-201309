@@ -83,23 +83,27 @@ CC_normal	:= $(CC)
 CP_normal	:= cp
 BUILD_normal	:=
 DEPEND_normal	:= $(CPP) $(CFLAGS) -MM -MG
+MAKE_normal	:= $(MAKE)
 
 CC_quiet	= @echo "  CC       " $@ && $(CC_normal)
 CP_quiet	= @echo "  CP       " `echo "$<" | sed sX/.*/X/.../X` && \
 		    $(CP_normal)
 BUILD_quiet	= @echo "  BUILD    " $@ && $(BUILD_normal)
 DEPEND_quiet	= @$(DEPEND_normal)
+MAKE_quiet	= @echo "  MAKE     " $@ && $(MAKE_normal)
 
 ifeq ($(V),1)
     CC		= $(CC_normal)
     CP		= $(CP_normal)
     BUILD	= $(BUILD_normal)
     DEPEND	= $(DEPEND_normal)
+    MAKE	= +$(MAKE_normal)
 else
     CC		= $(CC_quiet)
     CP		= $(CP_quiet)
     BUILD	= $(BUILD_quiet)
     DEPEND	= $(DEPEND_quiet)
+    MAKE	= +$(MAKE_quiet)
 endif
 
 #----- Compilation ------------------------------------------------------------
