@@ -46,8 +46,6 @@ include Makefile.stm32
 
 $(DRIVERS_C):	$(DEMOBUILDER)
 
-$(NAME).o:	FreeRTOSConfig.h
-
 #
 # Adapt compiler name and increase configMINIMAL_STACK_SIZE from 130 to
 # 1300 bytes.
@@ -68,6 +66,7 @@ clean::
 # ports, the target CPU is the same as the platform CPU. In "native" and
 # similar, the target CPU is implicitly whatever the host has.
 #
+
 CONTIKI_TARGET_CPU = $(CONTIKI_TARGET_CPU_$(CHIP_FAMILY))
 CONTIKI_TARGET_CPU_STM32F4xx = cm4
 
@@ -92,3 +91,12 @@ $(CONTIKI)/contiki-freertos.a:
 
 clean::
 		$(MAKE_CONTIKI) clean
+
+#####  Final dependencies  ####################################################
+
+#
+# Since things get added to OBJS until the end of the Makefile, we need to put
+# these dependencies last.
+#
+
+$(OBJS):	FreeRTOSConfig.h
