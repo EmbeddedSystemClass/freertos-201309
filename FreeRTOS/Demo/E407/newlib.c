@@ -13,12 +13,7 @@
 
 #include "stm32f4xx_conf.h"
 
-
-static void put_char(char c)
-{
-	while (USART_GetFlagStatus(USART6, USART_FLAG_TXE) == RESET);
-	USART_SendData(USART6, c);
-}
+#include "serial.h"
 
 
 int _close(int fd)
@@ -81,8 +76,8 @@ ssize_t _write(int fd, const void *buf, size_t count)
 		char c = *(const char *) buf++;
 
 		if (c == '\n')	
-			put_char('\r');
-		put_char(c);
+			serial_send("\r", 1);
+		serial_send(&c, 1);
 	}
 	return ret;
 }
