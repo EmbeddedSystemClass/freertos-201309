@@ -100,3 +100,5 @@ clean::
 #
 
 $(OBJS):	FreeRTOSConfig.h
+
+hal.o:		$(CONTIKI)/contiki-freertos.a
