@@ -71,11 +71,12 @@ void serial_init(void)
 		.NVIC_IRQChannelCmd = ENABLE,
 	};
 
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART6, ENABLE);
+	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);
 	GPIO_PinAFConfig(GPIOC, GPIO_PinSource6, GPIO_AF_USART6);
 	GPIO_PinAFConfig(GPIOC, GPIO_PinSource7, GPIO_AF_USART6);
 	GPIO_Init(GPIOC, &gpio_init);
 
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART6, ENABLE);
 	USART_Init(USART6, &uart_init);
 	USART_Cmd(USART6, ENABLE);
 
