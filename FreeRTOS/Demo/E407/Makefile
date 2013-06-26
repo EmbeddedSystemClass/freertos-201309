@@ -77,7 +77,10 @@ OBJS += $(CONTIKI)/foo.co
 OBJS += $(CONTIKI)/contiki-freertos.a
 
 MAKE_CONTIKI = $(MAKE) -C $(CONTIKI) \
-	       TARGET=freertos CONTIKI_TARGET_CPU=$(CONTIKI_TARGET_CPU)
+    TARGET=freertos CONTIKI_TARGET_CPU=$(CONTIKI_TARGET_CPU) \
+    FREERTOS=$(shell pwd)/../../.. \
+    FREERTOS_TARGET=$(shell pwd) \
+    FREERTOS_PORTABLE=$(shell pwd)/../../Source/portable/GCC/ARM_CM4F
 
 .PHONY:		$(CONTIKI)/foo.co $(CONTIKI)/contiki-freertos.a
 
