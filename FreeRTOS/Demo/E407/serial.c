@@ -50,7 +50,7 @@ void USART6_IRQHandler(void)
 void serial_init(void)
 {
 	static USART_InitTypeDef uart_init = {
-		.USART_BaudRate		= 38400,
+		.USART_BaudRate		= 115200,
 		.USART_WordLength	= USART_WordLength_8b,
 		.USART_StopBits		= USART_StopBits_1,
 		.USART_Parity		= USART_Parity_No,
