@@ -70,12 +70,8 @@ int main(void)
 
 void vParTestToggleLED(unsigned long ulLED)
 {
-	static int n = 0;
-
-	if (ulLED == 0) {
+	if (ulLED == 0)
 		GPIOC->ODR ^= 1 << 13;		/* toggle PC13 */
-		printf("hello %d\n", n++);
-	}
 }
 
 
