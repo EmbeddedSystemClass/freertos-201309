@@ -7,6 +7,7 @@
 
 NAME = demo
 CHIP_FAMILY = STM32F4xx
+CRYSTAL_Hz = 12000000
 
 #
 # -DUSE_STDPERIPH_DRIVER: make stm32f4xx_misc.c include stm32f4xx_conf.h

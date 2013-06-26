@@ -64,6 +64,7 @@ PATH_LD_SCRIPT = $(DEMO_DIR)/$(LD_SCRIPT_DIR)/$(LD_SCRIPT)
 
 CFLAGS += -mthumb \
 	-D$(CHIP_FAMILY_UC) \
+	-DHSE_VALUE=$(CRYSTAL_Hz) \
 	-I$(DEMO_DIR)/Project/Core/Devices/$(CHIP_FAMILY)\
 	-I$(DEMO_DIR)/Libraries/$(CHIP_FAMILY)_StdPeriph_Driver/inc \
 	-I$(DEMO_DIR)/Libraries/CMSIS/Device/ST/$(CHIP_FAMILY)/Include \
