@@ -18,14 +18,12 @@
 #include "stm32f4xx_conf.h"
 
 #include "serial.h"
+#include "contiki.h"
 
 #include <stdio.h>
 
 
 #define mainFLASH_TASK_PRIORITY		(tskIDLE_PRIORITY + 1UL)
-
-
-extern void contiki_main(void);
 
 
 static void init_led(void)
