@@ -42,6 +42,8 @@ static void init_led(void)
 
 int main(void)
 {
+	RCC_ClocksTypeDef clocks;
+
 	/*
 	 * Ensure all priority bits are assigned as preemption priority bits.
 	 * (Taken verbatim from ../CORTEX_M4F_STM32F407ZG-SK/main.c)
@@ -56,6 +58,13 @@ int main(void)
 	serial_init();
 
 	printf("FreeRTOS Build: %s\n", FREERTOS_BUILD_DATE);
+
+	RCC_GetClocksFreq(&clocks);
+	printf("Clocks (MHz): "
+	    "Crystal %.3f SYS %.3f MHz AHB %.3f APB1 %.3f APB2 %.3f\n",
+	    HSE_VALUE/1e6,
+	    clocks.SYSCLK_Frequency/1e6, clocks.HCLK_Frequency/1e6,
+	    clocks.PCLK1_Frequency/1e6, clocks.PCLK2_Frequency/1e6);
 
 	vStartLEDFlashTasks(mainFLASH_TASK_PRIORITY);
 
