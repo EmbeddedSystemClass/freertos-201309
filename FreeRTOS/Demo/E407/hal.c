@@ -9,6 +9,9 @@
 #include <stdint.h>
 #include <stdio.h>
 
+#include "FreeRTOS.h"
+#include "task.h"
+
 #include "stm32f4xx_conf.h"
 
 /* @@@ contiki/contiki/ because we're on top of contiki-outoftree */
@@ -313,6 +316,21 @@ void exti15_10_isr(void)
 			rxframe_tail = 0;
 		rf230_interrupt();
 	}
+}
+
+
+/* ----- Critical sections (general) --------------------------------------- */
+
+
+void HAL_ENTER_CRITICAL_REGION(void)
+{
+	taskDISABLE_INTERRUPTS();
+}
+
+
+void HAL_LEAVE_CRITICAL_REGION(void)
+{
+	taskENABLE_INTERRUPTS();
 }
 
 
