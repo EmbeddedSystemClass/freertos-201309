@@ -16,8 +16,7 @@
 
 /* @@@ contiki/contiki/ because we're on top of contiki-outoftree */
 #include "contiki/contiki/cpu/avr/radio/rf230bb/at86rf230_registermap.h"
-
-#include "contiki/hal.h"	/* @@@ UUUUHHHHGGGGGLLEEEEEH !!! */
+#include "contiki/hal.h"
 
 #include "contiki.h"
 
