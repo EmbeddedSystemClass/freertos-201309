@@ -292,7 +292,7 @@ void hal_disable_trx_interrupt(void)
 }
 
 
-void exti15_10_isr(void)
+void EXTI15_10_IRQHandler(void)
 {
 	uint8_t irq, state;
 
@@ -339,7 +339,7 @@ void HAL_LEAVE_CRITICAL_REGION(void)
 void hal_init(void)
 {
 	static NVIC_InitTypeDef nvic_init = {
-		.NVIC_IRQChannel	= EXTI9_5_IRQn,
+		.NVIC_IRQChannel	= EXTI15_10_IRQn,
 		.NVIC_IRQChannelPreemptionPriority = 8,	/* 0-15; @@@ ? */
 		.NVIC_IRQChannelSubPriority = 8,	/* 0-15; @@@ ? */
 		.NVIC_IRQChannelCmd	= ENABLE,
