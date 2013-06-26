@@ -5,17 +5,18 @@
  * licensed under LGPLv2 by Actility S.A.
  */
 
+#include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
 
-#include <libopencm3/cm3/nvic.h>
-#include <libopencm3/stm32/rcc.h>
-#include <libopencm3/stm32/gpio.h>
-#include <libopencm3/stm32/exti.h>
+#include "stm32f4xx_conf.h"
 
-#include "../../contiki/cpu/avr/radio/rf230bb/at86rf230_registermap.h"
+/* @@@ contiki/contiki/ because we're on top of contiki-outoftree */
+#include "contiki/contiki/cpu/avr/radio/rf230bb/at86rf230_registermap.h"
 
-#include "hal.h"
+#include "contiki/hal.h"	/* @@@ UUUUHHHHGGGGGLLEEEEEH !!! */
+
+#include "contiki.h"
 
 
 #define	AT86RF230_REG_READ	0x80
@@ -53,26 +54,42 @@
 #define	PORT_SCLK	GPIOC
 #define	BIT_SCLK	9
 
-#define	GPIO_CONCAT(n)	GPIO##n
-#define	GPIO(n)		GPIO_CONCAT(n)
+#define	OUT(pin)	gpio_inout(PORT_##pin, 1 << BIT_##pin, 1)
+#define	IN(pin)		gpio_inout(PORT_##pin, 1 << BIT_##pin, 0)
+#define	SET(pin)	GPIO_SetBits(PORT_##pin, 1 << BIT_##pin)
+#define	CLR(pin)	GPIO_ResetBits(PORT_##pin, 1 << BIT_##pin)
 
-#define	OUT(pin)	gpio_mode_setup(PORT_##pin, GPIO_MODE_OUTPUT, \
-			    GPIO_PUPD_NONE, GPIO(BIT_##pin))
-#define	IN(pin)		gpio_mode_setup(PORT_##pin, GPIO_MODE_INPUT, \
-			    GPIO_PUPD_NONE, GPIO(BIT_##pin))
-#define	SET(pin)	GPIO_BSRR(PORT_##pin) = GPIO(BIT_##pin)
-#define	CLR(pin)	GPIO_BSRR(PORT_##pin) = GPIO(BIT_##pin) << 16
+#define	PIN(pin)	(GPIO_ReadInputDataBit(PORT_##pin, 1 << BIT_##pin) \
+			    == Bit_SET)
 
-#define	PIN(pin)	!!(GPIO_IDR(PORT_##pin) & GPIO(BIT_##pin))
+#define	EXTI_PinSource_CONCAT(n)	EXTI_PinSource##n
+#define	EXTI_PinSource(n)		EXTI_PinSource_CONCAT(n)
 
-#define	EXTI_CONCAT(n)	EXTI##n
-#define	EXTI(n)		EXTI_CONCAT(n)
+#define	EXTI_Line_CONCAT(n)		EXTI_Line##n
+#define	EXTI_Line(n)			EXTI_Line_CONCAT(n)
+
+
+/* ----- GPIO helper functions --------------------------------------------- */
+
+
+static void gpio_inout(GPIO_TypeDef *GPIOx, uint16_t pins, bool out)
+{
+	GPIO_InitTypeDef gpio_init = {
+		.GPIO_Pin       = pins,
+		.GPIO_Mode      = out ? GPIO_Mode_OUT : GPIO_Mode_IN,
+		.GPIO_Speed     = GPIO_Speed_25MHz,
+		.GPIO_OType     = GPIO_OType_PP,
+		.GPIO_PuPd      = GPIO_PuPd_NOPULL,
+	};
+
+	GPIO_Init(GPIOx, &gpio_init);
+}
 
 
 /* ----- Items shared with rf230bb ----------------------------------------- */
 
 
-void rf230_interrupt(void);
+void rf230_interrupt(void);	/* @@@ move to contiki.h */
 
 extern hal_rx_frame_t rxframe[RF230_CONF_RX_BUFFERS];
 extern uint8_t rxframe_head, rxframe_tail;
@@ -248,15 +265,28 @@ void hal_sram_write(uint8_t address, uint8_t length, uint8_t *data)
 /* ----- Interrupts -------------------------------------------------------- */
 
 
+static void exti_setup(bool enable)
+{
+	EXTI_InitTypeDef exti_init = {
+		.EXTI_Line	= EXTI_Line(BIT_IRQ),
+		.EXTI_Mode	= EXTI_Mode_Interrupt,
+		.EXTI_Trigger	= EXTI_Trigger_Rising,
+		.EXTI_LineCmd	= enable ? ENABLE : DISABLE,
+	};
+
+	EXTI_Init(&exti_init);
+}
+
+
 void hal_enable_trx_interrupt(void)
 {
-	exti_enable_request(EXTI(BIT_IRQ));
+	exti_setup(1);
 }
 
 
 void hal_disable_trx_interrupt(void)
 {
-	exti_disable_request(EXTI(BIT_IRQ));
+	exti_setup(0);
 }
 
 
@@ -264,7 +294,7 @@ void exti15_10_isr(void)
 {
 	uint8_t irq, state;
 
-	exti_reset_request(EXTI(BIT_IRQ));
+	EXTI_ClearITPendingBit(EXTI_Line(BIT_IRQ));
 	irq = hal_register_read(RG_IRQ_STATUS);
 
 	if (!(irq & IRQ_TRX_END))
@@ -291,8 +321,15 @@ void exti15_10_isr(void)
 
 void hal_init(void)
 {
-	rcc_peripheral_enable_clock(&RCC_AHB1ENR, RCC_AHB1ENR_IOPCEN);
-	rcc_peripheral_enable_clock(&RCC_AHB1ENR, RCC_AHB1ENR_IOPDEN);
+	static NVIC_InitTypeDef nvic_init = {
+		.NVIC_IRQChannel	= EXTI9_5_IRQn,
+		.NVIC_IRQChannelPreemptionPriority = 8,	/* 0-15; @@@ ? */
+		.NVIC_IRQChannelSubPriority = 8,	/* 0-15; @@@ ? */
+		.NVIC_IRQChannelCmd	= ENABLE,
+	};
+
+	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);
+	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOD, ENABLE);
 
 	CLR(SCLK);
 	SET(nSEL);
@@ -307,10 +344,10 @@ void hal_init(void)
 
 	hal_register_read(RG_IRQ_STATUS);
 
-	rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_SYSCFGEN);
-	nvic_enable_irq(NVIC_EXTI15_10_IRQ);
-	exti_select_source(EXTI(BIT_IRQ), PORT_IRQ);
-	exti_set_trigger(EXTI(BIT_IRQ), EXTI_TRIGGER_RISING);
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);
+	NVIC_Init(&nvic_init);
+	SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOC, /* PORT_IRQ */
+	    EXTI_PinSource(BIT_IRQ));
 	hal_enable_trx_interrupt();
 
 	/*
