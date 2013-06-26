@@ -10,6 +10,6 @@
 
 
 extern void contiki_main(void);
-
+extern int serial_line_input_byte(unsigned char c);
 
 #endif /* !CONTIKI_H */

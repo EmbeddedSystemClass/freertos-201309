@@ -26,6 +26,13 @@
 #define mainFLASH_TASK_PRIORITY		(tskIDLE_PRIORITY + 1UL)
 
 
+static void serial_receive(const char *buf, unsigned len)
+{
+	while (len--)
+		serial_line_input_byte(*buf++);
+}
+
+
 static void init_led(void)
 {
 	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);
@@ -45,6 +52,7 @@ int main(void)
 //	vParTestInitialise();
 
 	init_led();
+	serial_recv = serial_receive;
 	serial_init();
 
 	printf("FreeRTOS Build: %s\n", FREERTOS_BUILD_DATE);
