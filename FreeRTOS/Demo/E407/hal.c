@@ -91,8 +91,6 @@ static void gpio_inout(GPIO_TypeDef *GPIOx, uint16_t pins, bool out)
 /* ----- Items shared with rf230bb ----------------------------------------- */
 
 
-void rf230_interrupt(void);	/* @@@ move to contiki.h */
-
 extern hal_rx_frame_t rxframe[RF230_CONF_RX_BUFFERS];
 extern uint8_t rxframe_head, rxframe_tail;
 
@@ -212,11 +210,11 @@ void hal_subregister_write(uint8_t address, uint8_t mask, uint8_t position,
 {
 	uint8_t reg;
 
-	//@@@ lock
+	HAL_ENTER_CRITICAL_REGION();
 	reg = hal_register_read(address);
 	reg = (reg & ~mask) | (value << position);
 	hal_register_write(address, reg);
-	//@@@ lock
+	HAL_LEAVE_CRITICAL_REGION();
 }
 
 

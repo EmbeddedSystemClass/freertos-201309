@@ -9,7 +9,8 @@
 #define	CONTIKI_H
 
 
-extern void contiki_main(void);
-extern int serial_line_input_byte(unsigned char c);
+void contiki_main(void);
+int serial_line_input_byte(unsigned char c);
+void rf230_interrupt(void);
 
 #endif /* !CONTIKI_H */
