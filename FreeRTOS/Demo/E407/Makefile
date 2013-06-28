@@ -52,9 +52,8 @@ $(DRIVERS_C):	$(DEMOBUILDER)
 # 1300 bytes.
 #
 
-FreeRTOSConfig.h: ../CORTEX_M4F_STM32F407ZG-SK/FreeRTOSConfig.h
-		$(BUILD) sed 's/__ICCARM__/__GNUC__/;s/130/1300/' $< >$@ || \
-		    { rm -f $@; exit 1; }
+FreeRTOSConfig.h: ../CORTEX_M4F_STM32F407ZG-SK/FreeRTOSConfig.h mkconfig
+		$(BUILD) ./mkconfig $< >$@ || { rm -f $@; exit 1; }
 
 clean::
 		rm -f FreeRTOSConfig.h

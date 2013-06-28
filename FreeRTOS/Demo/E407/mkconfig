@@ -1,0 +1,31 @@
+#!/bin/sh
+#
+# mkconfig - Adapt FreeRTOSConfig.h to our needs
+#
+# Developed by Werner Almesberger for Actility S.A., and
+# licensed under LGPLv2 by Actility S.A.
+#
+
+cat <<EOF
+/*
+ * MACHINE-GENERATED. DO NOT EDIT !
+ *
+ *
+ * Generator:		$0
+ * Original file:	$1
+ */
+
+EOF
+
+#
+# This changes the following:
+#
+# - change compiler name to GCC
+# - increase stack size from 130 bytes to 1300 bytes
+# - set configUSE_NEWLIB_REENTRANT
+#
+
+sed -e 's/__ICCARM__/__GNUC__/' \
+    -e 's/130/1300/' \
+    -e '/configUSE_PREEMPTION/{p;s/PREEMPTION/NEWLIB_REENTRANT/;}' \
+    "$1"
