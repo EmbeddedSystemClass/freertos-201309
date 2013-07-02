@@ -59,8 +59,7 @@ TEMPL=$(DEMO_DIR)/Libraries/CMSIS/Device/ST/$(CHIP_FAMILY)/Source/Templates/
 STM_DEMO=http://www.st.com/st-web-ui/static/active/en/st_prod_software_internet/resource/technical/software/firmware/$(DEMO_ZIP)
 
 PATH_STARTUP_S = $(TEMPL)/gcc_ride7/$(STARTUP_S)
-#PATH_SYSTEM_C = $(TEMPL)/$(SYSTEM_C)
-PATH_SYSTEM_C = $(SYSTEM_C)
+PATH_SYSTEM_C = $(TEMPL)/$(SYSTEM_C)
 PATH_LD_SCRIPT = $(DEMO_DIR)/$(LD_SCRIPT_DIR)/$(LD_SCRIPT)
 
 CFLAGS += -mthumb \
@@ -73,7 +72,7 @@ CFLAGS += -mthumb \
 
 LDFLAGS = -nostartfiles -T$(PATH_LD_SCRIPT) -Wl,--build-id=none
 
-SRC += $(PATH_SYSTEM_C)
+SRC += $(SYSTEM_C)
 
 OBJS = $(SRC:.c=.o)
 
