@@ -154,6 +154,8 @@ static void spi_send(uint8_t v)
 		else
 			CLR(MOSI);
 		SET(SCLK);
+		SET(SCLK);
+		SET(SCLK);
 		CLR(SCLK);
 	}
 }
@@ -167,6 +169,8 @@ static uint8_t spi_recv(void)
 	for (mask = 0x80; mask; mask >>= 1) {
 		if (PIN(MISO))
 			res |= mask;
+		SET(SCLK);
+		SET(SCLK);
 		SET(SCLK);
 		CLR(SCLK);
 	}
