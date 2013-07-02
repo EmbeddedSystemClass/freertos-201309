@@ -319,15 +319,16 @@ void EXTI15_10_IRQHandler(void)
 /* ----- Critical sections (general) --------------------------------------- */
 
 
+
 void HAL_ENTER_CRITICAL_REGION(void)
 {
-	taskDISABLE_INTERRUPTS();
+	taskENTER_CRITICAL();
 }
 
 
 void HAL_LEAVE_CRITICAL_REGION(void)
 {
-	taskENABLE_INTERRUPTS();
+	taskEXIT_CRITICAL();
 }
 
 
