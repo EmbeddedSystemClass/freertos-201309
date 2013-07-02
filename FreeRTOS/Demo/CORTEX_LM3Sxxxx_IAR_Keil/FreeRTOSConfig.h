@@ -134,6 +134,12 @@ to exclude the API function. */
 #define INCLUDE_eTaskGetState					1
 #define INCLUDE_xSemaphoreGetMutexHolder		1
 
+/* This demo makes use of one or more example stats formatting functions.  These
+format the raw data provided by the xTaskGetSystemState() function in to human
+readable ASCII form.  See the notes in the implementation of vTaskList() within 
+FreeRTOS/Source/tasks.c for limitations. */
+#define configINCLUDE_STATS_FORMATTING_FUNCTIONS	1
+
 #define configKERNEL_INTERRUPT_PRIORITY 		( 7 << 5 )	/* Priority 7, or 255 as only the top three bits are implemented.  This is the lowest priority. */
 /* !!!! configMAX_SYSCALL_INTERRUPT_PRIORITY must not be set to zero !!!!
 See http://www.FreeRTOS.org/RTOS-Cortex-M3-M4.html. */
@@ -145,7 +151,7 @@ version. */
 
 #ifdef __ICCARM__
 	void vAssertCalled( const char *pcFile, unsigned long ulLine );
-	#define configASSERT( x ) if( x == 0 ) vAssertCalled( __FILE__, __LINE__ );
+	#define configASSERT( x ) if( ( x ) == 0 ) vAssertCalled( __FILE__, __LINE__ );
 #endif
 
 #endif /* FREERTOS_CONFIG_H */
