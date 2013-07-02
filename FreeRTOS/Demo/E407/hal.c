@@ -177,7 +177,7 @@ static uint8_t spi_recv(void)
 /* ----- Register access --------------------------------------------------- */
 
 
-uint8_t hal_register_read(uint8_t address)
+static uint8_t register_read_unsafe(uint8_t address)
 {
 	uint8_t res;
 
@@ -189,7 +189,18 @@ uint8_t hal_register_read(uint8_t address)
 }
 
 
-void hal_register_write(uint8_t address, uint8_t value)
+uint8_t hal_register_read(uint8_t address)
+{
+	uint8_t res;
+
+	HAL_ENTER_CRITICAL_REGION();
+	res = register_read_unsafe(address);
+	HAL_LEAVE_CRITICAL_REGION();
+	return res;
+}
+
+
+static void register_write_unsafe(uint8_t address, uint8_t value)
 {
 	spi_begin();
 	spi_send(AT86RF230_REG_WRITE | address);
@@ -197,6 +208,20 @@ void hal_register_write(uint8_t address, uint8_t value)
 	spi_end();
 }
 
+
+void hal_register_write(uint8_t address, uint8_t value)
+{
+	HAL_ENTER_CRITICAL_REGION();
+	register_write_unsafe(address, value);
+	HAL_LEAVE_CRITICAL_REGION();
+}
+
+
+static uint8_t subregister_read_unsafe(uint8_t address, uint8_t mask,
+    uint8_t position)
+{
+	return (register_read_unsafe(address) & mask) >> position;
+}
 
 
 uint8_t hal_subregister_read(uint8_t address, uint8_t mask, uint8_t position)
@@ -211,7 +236,7 @@ void hal_subregister_write(uint8_t address, uint8_t mask, uint8_t position,
 	uint8_t reg;
 
 	HAL_ENTER_CRITICAL_REGION();
-	reg = hal_register_read(address);
+	reg = register_read_unsafe(address);
 	reg = (reg & ~mask) | (value << position);
 	hal_register_write(address, reg);
 	HAL_LEAVE_CRITICAL_REGION();
@@ -221,7 +246,7 @@ void hal_subregister_write(uint8_t address, uint8_t mask, uint8_t position,
 /* ----- Buffer access ----------------------------------------------------- */
 
 
-void hal_frame_read(hal_rx_frame_t *rx_frame)
+static void frame_read_unsafe(hal_rx_frame_t *rx_frame)
 {
 	uint8_t *buf = rx_frame->data;
 	uint8_t i;
@@ -239,14 +264,24 @@ void hal_frame_read(hal_rx_frame_t *rx_frame)
 }
 
 
+void hal_frame_read(hal_rx_frame_t *rx_frame)
+{
+	HAL_ENTER_CRITICAL_REGION();
+	frame_read_unsafe(rx_frame);
+	HAL_LEAVE_CRITICAL_REGION();
+}
+
+
 void hal_frame_write(uint8_t *write_buffer, uint8_t length)
 {
+	HAL_ENTER_CRITICAL_REGION();
 	spi_begin();
 	spi_send(AT86RF230_BUF_WRITE);
 	spi_send(length);
 	while (length--)
 		spi_send(*(uint8_t *) write_buffer++);
 	spi_end();
+	HAL_LEAVE_CRITICAL_REGION();
 }
 
 
@@ -295,7 +330,7 @@ void EXTI15_10_IRQHandler(void)
 	uint8_t irq, state;
 
 	EXTI_ClearITPendingBit(EXTI_Line(BIT_IRQ));
-	irq = hal_register_read(RG_IRQ_STATUS);
+	irq = register_read_unsafe(RG_IRQ_STATUS);
 
 	if (!(irq & IRQ_TRX_END))
 		return;
@@ -304,10 +339,10 @@ void EXTI15_10_IRQHandler(void)
 	/* @@@ check power level ? */
 	/* @@@ make BAT_LOW one-shot ? */
 
-	state = hal_subregister_read(SR_TRX_STATUS);
+	state = subregister_read_unsafe(SR_TRX_STATUS);
 	if (state == BUSY_RX_AACK || state == RX_ON || state == BUSY_RX ||
 	     state == RX_AACK_ON) {
-		hal_frame_read(&rxframe[rxframe_tail]);
+		frame_read_unsafe(&rxframe[rxframe_tail]);
 		rxframe_tail++;
 		if (rxframe_tail >= RF230_CONF_RX_BUFFERS)
 			rxframe_tail = 0;
