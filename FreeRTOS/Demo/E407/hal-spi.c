@@ -147,6 +147,13 @@ static void spi_begin(void)
 
 static void spi_end(void)
 {
+	/*
+	 * RM0090 Reference manual, 27.3.9: "[...] As a consequence, it is
+	 * mandatory to wait first until TXE=1 and then until BSY=0 after
+	 * writing the last data."
+	 */
+
+	while (SPI_I2S_GetFlagStatus(SPI2, SPI_I2S_FLAG_TXE) == RESET);
 	while (SPI_I2S_GetFlagStatus(SPI2, SPI_I2S_FLAG_BSY) == SET);
 	SET(nSEL);
 }
@@ -159,10 +166,33 @@ static void spi_send(uint8_t v)
 }
 
 
+static void spi_begin_rx(void)
+{
+	/*
+	 * If we did a series of writes, we'll have overrun the receiver.
+	 * RM0090 section 27.3.10, "Overrun condition", claims that we need to
+	 * clear OVR in order to proceed. (Experiments suggest that it's not
+	 * necessary, but better safe than sorry.)
+	 *
+	 * We also have to discard any stale data sitting in the receiver.
+	 */
+
+	while (SPI_I2S_GetFlagStatus(SPI2, SPI_I2S_FLAG_BSY) == SET);
+	(void) SPI_I2S_GetFlagStatus(SPI2, SPI_I2S_FLAG_OVR);
+	(void) SPI_I2S_ReceiveData(SPI2);
+}
+
+
 static uint8_t spi_recv(void)
 {
+	/*
+	 * The AT86RF231 requires a delay of 250 ns between the LSB of the
+	 * preceding byte and the MSB of a byte being received. We use 1 us
+	 * here because that's the delay a port read produces.
+	 */
+
 	delay_1us();
-	(void) SPI_I2S_ReceiveData(SPI2);
+
 	SPI_I2S_SendData(SPI2, 0);
 	while (SPI_I2S_GetFlagStatus(SPI2, SPI_I2S_FLAG_RXNE) == RESET);
 	return SPI_I2S_ReceiveData(SPI2);
@@ -178,6 +208,7 @@ static uint8_t register_read_unsafe(uint8_t address)
 
 	spi_begin();
 	spi_send(AT86RF230_REG_READ | address);
+	spi_begin_rx();
 	res = spi_recv();
 	spi_end();
 	return res;
@@ -248,6 +279,7 @@ static void frame_read_unsafe(hal_rx_frame_t *rx_frame)
 
 	spi_begin();
 	spi_send(AT86RF230_BUF_READ);
+	spi_begin_rx();
 	rx_frame->length = spi_recv();
 	if (rx_frame->length > HAL_MAX_FRAME_LENGTH)
 		rx_frame->length = HAL_MAX_FRAME_LENGTH;
