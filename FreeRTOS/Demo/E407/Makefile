@@ -29,13 +29,14 @@ CFLAGS = -Wall -Os -g \
 CFLAGS += -DFREERTOS_BUILD_DATE="\"`date`\""
 
 CFLAGS += -DODEV
+HAL = hal-gpio
 
 DRV_DIR = $(DEMO_DIR)/Libraries/STM32F4xx_StdPeriph_Driver/src
 
 DRIVERS = exti gpio misc rcc syscfg usart
 DRIVERS_C = $(DRIVERS:%=$(DRV_DIR)/stm32f4xx_%.c) \
 
-SRC = $(NAME).c newlib.c serial.c hal.c \
+SRC = $(NAME).c newlib.c serial.c $(HAL).c \
 	$(DRIVERS_C) \
 	../Common/Minimal/flash.c \
 	../../Source/list.c \
@@ -106,4 +107,4 @@ clean::
 
 $(OBJS):	FreeRTOSConfig.h
 
-hal.o:		$(CONTIKI)/contiki-freertos.a
+$(HAL).o:	$(CONTIKI)/contiki-freertos.a

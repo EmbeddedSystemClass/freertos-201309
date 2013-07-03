@@ -1,5 +1,5 @@
 /*
- * hal.c - Substitute for cpu/avr/radio/rf230bb/halbb.c (atben on STM32-E407)
+ * hal-gpio.c - Substitute for cpu/avr/radio/rf230bb/halbb.c (atben on STM32-E407)
  *
  * Developed by Werner Almesberger for Actility S.A., and
  * licensed under LGPLv2 by Actility S.A.
