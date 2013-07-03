@@ -29,11 +29,11 @@ CFLAGS = -Wall -Os -g \
 CFLAGS += -DFREERTOS_BUILD_DATE="\"`date`\""
 
 CFLAGS += -DODEV
-HAL = hal-gpio
+HAL = hal-spi
 
 DRV_DIR = $(DEMO_DIR)/Libraries/STM32F4xx_StdPeriph_Driver/src
 
-DRIVERS = exti gpio misc rcc syscfg usart
+DRIVERS = exti gpio misc rcc spi syscfg usart
 DRIVERS_C = $(DRIVERS:%=$(DRV_DIR)/stm32f4xx_%.c) \
 
 SRC = $(NAME).c newlib.c serial.c $(HAL).c \
