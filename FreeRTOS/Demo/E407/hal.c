@@ -34,14 +34,17 @@
 
 /*
  * SD/MMC pin	atben signal	GPIO (Olimex STM32-E407)
- * ----------	------------	----
- * DAT2		IRQ		PC10
- * DAT3		nSEL		PC11
- * CMD		MOSI		PD2
- * CLK		SLP_TR		PC12
- * DAT0		MISO		PC8
- * DAT1		SCLK		PC9
+ *				uSD	odev
+ * ----------	------------	----	----
+ * DAT2		IRQ		PC10	PG10
+ * DAT3		nSEL		PC11	PB9
+ * CMD		MOSI		PD2	PC3
+ * CLK		SLP_TR		PC12	PB8
+ * DAT0		MISO		PC8	PC2
+ * DAT1		SCLK		PC9	PB10
  */
+
+#ifndef ODEV
 
 #define	PORT_IRQ	GPIOC
 #define	BIT_IRQ		10
@@ -55,6 +58,23 @@
 #define	BIT_MISO	8
 #define	PORT_SCLK	GPIOC
 #define	BIT_SCLK	9
+
+#else /* ODEV */
+
+#define	PORT_IRQ	GPIOG
+#define	BIT_IRQ		10
+#define	PORT_nSEL	GPIOB
+#define	BIT_nSEL	9
+#define	PORT_MOSI	GPIOC
+#define	BIT_MOSI	3
+#define	PORT_SLP_TR	GPIOB
+#define	BIT_SLP_TR	8
+#define	PORT_MISO	GPIOC
+#define	BIT_MISO	2
+#define	PORT_SCLK	GPIOB
+#define	BIT_SCLK	10
+
+#endif /* ODEV */
 
 #define	OUT(pin)	gpio_inout(PORT_##pin, 1 << BIT_##pin, 1)
 #define	IN(pin)		gpio_inout(PORT_##pin, 1 << BIT_##pin, 0)
@@ -383,8 +403,14 @@ void hal_init(void)
 		.NVIC_IRQChannelCmd	= ENABLE,
 	};
 
+#ifndef ODEV
 	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);
 	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOD, ENABLE);
+#else /* ODEV */
+	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
+	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);
+	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOG, ENABLE);
+#endif /* ODEV */
 
 	CLR(SCLK);
 	SET(nSEL);
@@ -401,8 +427,13 @@ void hal_init(void)
 
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);
 	NVIC_Init(&nvic_init);
+#ifndef ODEV
 	SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOC, /* PORT_IRQ */
 	    EXTI_PinSource(BIT_IRQ));
+#else /* ODEV */
+	SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOG, /* PORT_IRQ */
+	    EXTI_PinSource(BIT_IRQ));
+#endif /* ODEV */
 	hal_enable_trx_interrupt();
 
 	/*
