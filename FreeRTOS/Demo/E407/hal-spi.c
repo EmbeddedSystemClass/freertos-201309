@@ -272,6 +272,15 @@ void hal_subregister_write(uint8_t address, uint8_t mask, uint8_t position,
 /* ----- Buffer access ----------------------------------------------------- */
 
 
+/*
+ * Note that frame_read_unsafe can block for up to about 500 us.
+ *
+ * 131 Bytes * 3.6 us/Byte = 472 us
+ *
+ * The 3.6 us/Byte rate was obtained by measurement, see
+ * frtos-wpan/lab/atben-spi/spi-buf-read.png
+ */
+
 static void frame_read_unsafe(hal_rx_frame_t *rx_frame)
 {
 	uint8_t *buf = rx_frame->data;
@@ -298,6 +307,12 @@ void hal_frame_read(hal_rx_frame_t *rx_frame)
 	HAL_LEAVE_CRITICAL_REGION();
 }
 
+
+/*
+ * Note that hal_frame_write can block for up to about 200 us:
+ *
+ * 130 Bytes * 8 / 5.25 Mbps = 198 us
+ */
 
 void hal_frame_write(uint8_t *write_buffer, uint8_t length)
 {
