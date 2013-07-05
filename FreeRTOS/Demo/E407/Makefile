@@ -28,6 +28,7 @@ CFLAGS = -Wall -Os -g \
 
 CFLAGS += -DFREERTOS_BUILD_DATE="\"`date`\""
 
+CONTIKI_FLAGS = UIP_CONF_IPV6=1
 CFLAGS += -DODEV
 HAL = hal-spi
 
@@ -81,7 +82,7 @@ CONTIKI = contiki
 OBJS += $(CONTIKI)/foo.co
 OBJS += $(CONTIKI)/contiki-freertos.a
 
-MAKE_CONTIKI = $(MAKE) -C $(CONTIKI) \
+MAKE_CONTIKI = $(MAKE) -C $(CONTIKI) $(CONTIKI_FLAGS) \
     TARGET=freertos CONTIKI_TARGET_CPU=$(CONTIKI_TARGET_CPU) \
     FREERTOS=$(shell pwd)/../../.. \
     FREERTOS_TARGET=$(shell pwd) \
