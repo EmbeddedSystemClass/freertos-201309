@@ -28,9 +28,11 @@ CFLAGS = -Wall -Os -g \
 
 CFLAGS += -DFREERTOS_BUILD_DATE="\"`date`\""
 
+# optional (if the EUI64 is not provided, we generate it from the U_ID):
+CFLAGS += -DEUI64=0xa0,0,0,0,0,0,0,3
+
 CONTIKI_FLAGS = UIP_CONF_IPV6=1
 CONTIKI_FLAGS += RF_CHANNEL=11 PAN_ADDR=0xabcd SHORT_ADDR=0x8003
-CONTIKI_FLAGS += LONG_ADDR=0xa0,0,0,0,0,0,0,3
 CONTIKI_FLAGS += RPL_CONF_OF=rpl_of0
 CFLAGS += -DODEV
 HAL = hal-spi
