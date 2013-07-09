@@ -18,6 +18,7 @@
 #include "stm32f4xx_conf.h"
 
 #include "serial.h"
+#include "eui64.h"
 #include "contiki.h"
 
 #include <stdio.h>
@@ -65,6 +66,8 @@ int main(void)
 	    HSE_VALUE/1e6,
 	    clocks.SYSCLK_Frequency/1e6, clocks.HCLK_Frequency/1e6,
 	    clocks.PCLK1_Frequency/1e6, clocks.PCLK2_Frequency/1e6);
+
+	init_eui64();
 
 	vStartLEDFlashTasks(mainFLASH_TASK_PRIORITY);
 

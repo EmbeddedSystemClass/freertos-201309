@@ -40,7 +40,7 @@ DRV_DIR = $(DEMO_DIR)/Libraries/STM32F4xx_StdPeriph_Driver/src
 DRIVERS = exti gpio misc rcc spi syscfg usart
 DRIVERS_C = $(DRIVERS:%=$(DRV_DIR)/stm32f4xx_%.c) \
 
-SRC = $(NAME).c newlib.c serial.c $(HAL).c \
+SRC = $(NAME).c eui64.c newlib.c serial.c $(HAL).c \
 	md5/md5.c \
 	$(DRIVERS_C) \
 	../Common/Minimal/flash.c \
