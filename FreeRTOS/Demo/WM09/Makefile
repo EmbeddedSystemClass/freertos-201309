@@ -59,3 +59,30 @@ clean::
 #
 
 $(OBJS):	FreeRTOSConfig.h
+
+
+#####  Flash via OpenOCD #####
+
+#
+# Use BRCM's OpenOCD binary which has the BCM9WCD1EVAL1 layout and some other
+# enhancements.
+#
+WICED = ../../../../wiced
+OPENOCD = $(WICED)/Tools/OpenOCD/Linux64/openocd-all-brcm-libftdi
+WICED_OPENOCD = $(WICED)/Tools/OpenOCD
+
+flash:		$(NAME).elf
+		$(OPENOCD) \
+		    -f $(WICED_OPENOCD)/BCM9WCD1EVAL1.cfg \
+		    -f $(WICED_OPENOCD)/stm32f2x.cfg \
+		    -f $(WICED_OPENOCD)/stm32f2x-flash-app.cfg \
+		    -c "flash write_image erase $<" \
+		    -c shutdown
+
+run:
+		$(OPENOCD) \
+		    -f $(WICED_OPENOCD)/BCM9WCD1EVAL1.cfg \
+		    -f $(WICED_OPENOCD)/stm32f2x.cfg \
+		    -c init \
+		    -c "reset run" \
+		    -c shutdown
