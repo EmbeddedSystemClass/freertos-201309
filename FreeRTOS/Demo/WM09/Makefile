@@ -17,8 +17,6 @@ CFLAGS = -Wall -Os -g \
 
 CFLAGS += -DFREERTOS_BUILD_DATE="\"`date`\""
 
-DRV_DIR = $(DEMO_DIR)/Libraries/STM32F2xx_StdPeriph_Driver/src
-
 DRIVERS = gpio misc rcc usart
 DRIVERS_C = $(DRIVERS:%=$(DRV_DIR)/stm32f2xx_%.c) \
 

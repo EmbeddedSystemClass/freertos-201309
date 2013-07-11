@@ -12,10 +12,6 @@ CRYSTAL_Hz = 12000000
 #
 # -DUSE_STDPERIPH_DRIVER: make stm32f4xx_misc.c include stm32f4xx_conf.h
 #
-# -mfloat-abi=hard -mfpu=fpv4-sp-d16: generate code for FPU and use
-# corresponding version of (multi-)newlib. This way, we're ABI-compatible
-# with Contiki.
-#
 
 CFLAGS = -Wall -Os -g \
 	-DUSE_STDPERIPH_DRIVER \
@@ -33,8 +29,6 @@ CONTIKI_FLAGS += RF_CHANNEL=11 PAN_ADDR=0xabcd SHORT_ADDR=0x8003
 CONTIKI_FLAGS += RPL_CONF_OF=rpl_of0
 CFLAGS += -DODEV
 HAL = hal-spi
-
-DRV_DIR = $(DEMO_DIR)/Libraries/STM32F4xx_StdPeriph_Driver/src
 
 DRIVERS = exti gpio misc rcc spi syscfg usart
 DRIVERS_C = $(DRIVERS:%=$(DRV_DIR)/stm32f4xx_%.c) \

@@ -23,6 +23,14 @@ ARCH = arm-none-eabi
 CC = $(ARCH)-gcc
 OBJCOPY = $(ARCH)-objcopy
 
+#
+# STM32F4xx:
+#
+# -mfloat-abi=hard -mfpu=fpv4-sp-d16: generate code for FPU and use
+# corresponding version of (multi-)newlib. This way, we're ABI-compatible
+# with most of the world, including Contiki.
+#
+
 ifeq ($(CHIP_FAMILY),STM32F2xx)
 	LD_SCRIPT = STM32F207IG_FLASH.ld
 	LD_SCRIPT_DIR = Project/TrueSTUDIO/STM322xG-EVAL
@@ -33,6 +41,7 @@ ifeq ($(CHIP_FAMILY),STM32F2xx)
 	CFLAGS += -I../../Source/portable/GCC/ARM_CM3
 	CFLAGS += -I$(DEMO_DIR)/Libraries/STM32F2xx_StdPeriph_Driver/inc
 	SRC += ../../Source/portable/GCC/ARM_CM3/port.c
+	DRV_DIR = $(DEMO_DIR)/Libraries/STM32F2xx_StdPeriph_Driver/src
 else ifeq ($(CHIP_FAMILY),STM32F4xx)
 	LD_SCRIPT = STM32F407IG_FLASH.ld
 	LD_SCRIPT_DIR = Project/TrueSTUDIO/STM324xG-EVAL
@@ -44,6 +53,7 @@ else ifeq ($(CHIP_FAMILY),STM32F4xx)
 	CFLAGS += -I../../Source/portable/GCC/ARM_CM4F
 	CFLAGS += -I$(DEMO_DIR)/Libraries/STM32F4xx_StdPeriph_Driver/inc
 	SRC += ../../Source/portable/GCC/ARM_CM4F/port.c
+	DRV_DIR = $(DEMO_DIR)/Libraries/STM32F4xx_StdPeriph_Driver/src
 else
 $(error Please set CHIP_FAMILY to STM32F2xx or STM32F4xx)
 endif
