@@ -35,16 +35,14 @@ ifeq ($(CHIP_FAMILY),STM32F2xx)
 	LD_SCRIPT = STM32F207IG_FLASH.ld
 	LD_SCRIPT_DIR = Project/TrueSTUDIO/STM322xG-EVAL
 	CFLAGS += -mcpu=cortex-m3 -march=armv7-m
-	CFLAGS += -I../../Source/portable/GCC/ARM_CM3
-	SRC += ../../Source/portable/GCC/ARM_CM3/port.c
+	CORE_ARCH = ARM_CM3
 else ifeq ($(CHIP_FAMILY),STM32F4xx)
 	LD_SCRIPT = STM32F407IG_FLASH.ld
 	LD_SCRIPT_DIR = Project/TrueSTUDIO/STM324xG-EVAL
 	STARTUP_S = startup_stm32f40xx.s	# naming exception
 	CFLAGS += -mcpu=cortex-m4 -march=armv7e-m
 	CFLAGS += -mfloat-abi=hard -mfpu=fpv4-sp-d16
-	CFLAGS += -I../../Source/portable/GCC/ARM_CM4F
-	SRC += ../../Source/portable/GCC/ARM_CM4F/port.c
+	CORE_ARCH = ARM_CM4F
 else
 $(error Please set CHIP_FAMILY to STM32F2xx or STM32F4xx)
 endif
@@ -58,6 +56,9 @@ CFLAGS += -DSTM32_CONF_H='"$(CHIP_FAMILY_LC)_conf.h"'
 CFLAGS += -I$(DEMO_DIR)/Libraries/$(CHIP_FAMILY)_StdPeriph_Driver/inc
 DRV_DIR = $(DEMO_DIR)/Libraries/$(CHIP_FAMILY)_StdPeriph_Driver/src
 DRIVERS_C = $(DRIVERS:%=$(DRV_DIR)/$(CHIP_FAMILY_LC)_%.c) \
+
+CFLAGS += -I../../Source/portable/GCC/$(CORE_ARCH)
+SRC += ../../Source/portable/GCC/$(CORE_ARCH)/port.c
 
 #
 # STSW-STM32106STM32F2 and STM32F4 demonstration builder platform
