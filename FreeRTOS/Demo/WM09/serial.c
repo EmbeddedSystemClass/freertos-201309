@@ -12,7 +12,7 @@
 //#include "partest.h"
 #include "flash.h"
 
-#include "stm32f4xx_conf.h"
+#include STM32_CONF_H
 
 #include "serial.h"
 
@@ -23,8 +23,8 @@ void (*serial_recv)(const char *buf, unsigned n) = NULL;
 void serial_send_isr(const char *buf, unsigned len)
 {
 	while (len--) {
-		while (USART_GetFlagStatus(USART6, USART_FLAG_TXE) == RESET);
-		USART_SendData(USART6, *buf++);
+		while (USART_GetFlagStatus(USART1, USART_FLAG_TXE) == RESET);
+		USART_SendData(USART1, *buf++);
 	}
 }
 
@@ -35,12 +35,12 @@ void serial_send(const char *buf, unsigned len)
 }
 
 
-void USART6_IRQHandler(void)
+void USART1_IRQHandler(void)
 {
 	char ch;
 
-	while (USART_GetFlagStatus(USART6, USART_FLAG_RXNE) == SET) {
-		ch = USART_ReceiveData(USART6);
+	while (USART_GetFlagStatus(USART1, USART_FLAG_RXNE) == SET) {
+		ch = USART_ReceiveData(USART1);
 		if (serial_recv)
 			serial_recv(&ch, 1);
 	}
@@ -58,31 +58,31 @@ void serial_init(void)
 		.USART_HardwareFlowControl = USART_HardwareFlowControl_None,
 	};
 	static GPIO_InitTypeDef gpio_init = {
-		.GPIO_Pin	= GPIO_Pin_6 | GPIO_Pin_7,
+		.GPIO_Pin	= GPIO_Pin_9 | GPIO_Pin_10,
 		.GPIO_Mode	= GPIO_Mode_AF,
 		.GPIO_Speed	= GPIO_Speed_2MHz,
 		.GPIO_OType	= GPIO_OType_PP,
 		.GPIO_PuPd	= GPIO_PuPd_NOPULL,
 	};
 	static NVIC_InitTypeDef nvic_init = {
-		.NVIC_IRQChannel = USART6_IRQn,
+		.NVIC_IRQChannel = USART1_IRQn,
 		.NVIC_IRQChannelPreemptionPriority = 8, /* 0-15; @@@ ? */
 		.NVIC_IRQChannelSubPriority = 8,	/* 0-15; @@@ ? */
 		.NVIC_IRQChannelCmd = ENABLE,
 	};
 
-	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);
-	GPIO_PinAFConfig(GPIOC, GPIO_PinSource6, GPIO_AF_USART6);
-	GPIO_PinAFConfig(GPIOC, GPIO_PinSource7, GPIO_AF_USART6);
-	GPIO_Init(GPIOC, &gpio_init);
+	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
+	GPIO_PinAFConfig(GPIOA, GPIO_PinSource9, GPIO_AF_USART1);
+	GPIO_PinAFConfig(GPIOA, GPIO_PinSource10, GPIO_AF_USART1);
+	GPIO_Init(GPIOA, &gpio_init);
 
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART6, ENABLE);
-	USART_Init(USART6, &uart_init);
-	USART_Cmd(USART6, ENABLE);
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1, ENABLE);
+	USART_Init(USART1, &uart_init);
+	USART_Cmd(USART1, ENABLE);
 
-	USART_ITConfig(USART6, USART_IT_RXNE, ENABLE);
-	USART_GetITStatus(USART6, USART_IT_RXNE);	/* why ? @@@ */
-	USART_ClearITPendingBit(USART6, USART_IT_RXNE);
+	USART_ITConfig(USART1, USART_IT_RXNE, ENABLE);
+	USART_GetITStatus(USART1, USART_IT_RXNE);	/* why ? @@@ */
+	USART_ClearITPendingBit(USART1, USART_IT_RXNE);
 
 	NVIC_Init(&nvic_init);
 }
