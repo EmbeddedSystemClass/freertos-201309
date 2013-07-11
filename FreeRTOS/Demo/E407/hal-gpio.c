@@ -12,7 +12,7 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
-#include "stm32f4xx_conf.h"
+#include STM32_CONF_H
 
 /* @@@ contiki/contiki/ because we're on top of contiki-outoftree */
 #include "contiki/contiki/cpu/avr/radio/rf230bb/at86rf230_registermap.h"

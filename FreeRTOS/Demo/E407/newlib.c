@@ -11,7 +11,7 @@
 
 #include "FreeRTOS.h"
 
-#include "stm32f4xx_conf.h"
+#include STM32_CONF_H
 
 #include "serial.h"
 

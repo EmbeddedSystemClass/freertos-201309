@@ -29,12 +29,14 @@ ifeq ($(CHIP_FAMILY),STM32F2xx)
 	STARTUP_S = startup_stm32f2xx.s
 	SYSTEM_C = system_stm32f2xx.c
 	CFLAGS += -mcpu=cortex-m3 -march=armv7-m
+	CFLAGS += -DSTM32_CONF_H='"stm32f2xx_conf.h"'
 else ifeq ($(CHIP_FAMILY),STM32F4xx)
 	LD_SCRIPT = STM32F407IG_FLASH.ld
 	LD_SCRIPT_DIR = Project/TrueSTUDIO/STM324xG-EVAL
 	STARTUP_S = startup_stm32f40xx.s
 	SYSTEM_C = system_stm32f4xx.c
 	CFLAGS += -mcpu=cortex-m4 -march=armv7e-m
+	CFLAGS += -DSTM32_CONF_H='"stm32f4xx_conf.h"'
 else
 $(error Please set CHIP_FAMILY to STM32F2xx or STM32F4xx)
 endif
