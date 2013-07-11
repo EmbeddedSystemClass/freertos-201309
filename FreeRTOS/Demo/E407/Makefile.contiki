@@ -14,7 +14,8 @@ CONTIKI_FLAGS += RPL_CONF_OF=rpl_of0
 CFLAGS += -DODEV
 HAL = hal-spi
 
-SRC += eui64.c $(HAL).c md5/md5.c \
+# @@@ HACK. Consider creating directory Common.contiki
+SRC += ../E407/eui64.c ../E407/$(HAL).c ../E407/md5/md5.c
 
 #####  Items for subordinate Contiki  #########################################
 
