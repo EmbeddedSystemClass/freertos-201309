@@ -57,6 +57,7 @@ SYSTEM_C = system_$(CHIP_FAMILY_LC).c
 CFLAGS += -DSTM32_CONF_H='"$(CHIP_FAMILY_LC)_conf.h"'
 CFLAGS += -I$(DEMO_DIR)/Libraries/$(CHIP_FAMILY)_StdPeriph_Driver/inc
 DRV_DIR = $(DEMO_DIR)/Libraries/$(CHIP_FAMILY)_StdPeriph_Driver/src
+DRIVERS_C = $(DRIVERS:%=$(DRV_DIR)/$(CHIP_FAMILY_LC)_%.c) \
 
 #
 # STSW-STM32106STM32F2 and STM32F4 demonstration builder platform

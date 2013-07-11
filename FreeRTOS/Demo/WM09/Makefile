@@ -18,7 +18,6 @@ CFLAGS = -Wall -Os -g \
 CFLAGS += -DFREERTOS_BUILD_DATE="\"`date`\""
 
 DRIVERS = gpio misc rcc usart
-DRIVERS_C = $(DRIVERS:%=$(DRV_DIR)/stm32f2xx_%.c) \
 
 SRC = $(NAME).c ../E407/newlib.c serial.c \
 	$(DRIVERS_C) \
