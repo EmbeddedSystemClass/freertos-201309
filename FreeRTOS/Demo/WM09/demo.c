@@ -23,12 +23,47 @@
 #define mainFLASH_TASK_PRIORITY		(tskIDLE_PRIORITY + 1UL)
 
 
+static volatile uint16_t mask = 1;
+static volatile GPIO_TypeDef *port = GPIOA;
+
+
 static void serial_receive(const char *buf, unsigned len)
 {
 	while (len--) {
-		serial_send_isr("x", 1);
+		switch (*buf++) {
+		case '+':
+			if (mask != 0x8000)
+				mask <<= 1;
+			break;
+		case '-':
+			if (mask != 0x0001)
+				mask >>= 1;
+			break;
+		case 'a':
+			port = GPIOA;
+			break;
+		case 'b':
+			port = GPIOB;
+			break;
+		case 'c':
+			port = GPIOC;
+			break;
+		}
+		printf("0x%x\n", mask);
+//		serial_send_isr(".", 1);
 	}
 //		serial_line_input_byte(*buf++);
+}
+
+
+static void toggle(void)
+{
+	while (1) {
+		port->MODER |= mask*mask;
+		GPIO_ToggleBits(port, mask);
+		taskYIELD();
+	}
+
 }
 
 
@@ -57,8 +92,12 @@ int main(void)
 	    clocks.SYSCLK_Frequency/1e6, clocks.HCLK_Frequency/1e6,
 	    clocks.PCLK1_Frequency/1e6, clocks.PCLK2_Frequency/1e6);
 
-//	xTaskCreate((pdTASK_CODE) contiki_main, (const signed char *) "CoMa",
-//	  2000, NULL, tskIDLE_PRIORITY, NULL);
+	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
+	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
+	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);
+
+	xTaskCreate((pdTASK_CODE) toggle, (const signed char *) "CoMa",
+	  2000, NULL, tskIDLE_PRIORITY, NULL);
 
 	vTaskStartScheduler();
 
