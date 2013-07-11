@@ -33,9 +33,9 @@
 
 
 /*
- * SD/MMC pin	atben signal	GPIO (Olimex STM32-E407 with odev)
- *				odev
- * ----------	------------	----
+ * SD/MMC pin	atben signal	GPIO
+ *				STM32-E407+odev
+ * ----------	------------	---------------
  * DAT2		IRQ		PG10
  * DAT3		nSEL		PB9
  * CMD		MOSI		PC3 / SPI2_MOSI
@@ -43,6 +43,10 @@
  * DAT0		MISO		PC2 / SPI2_MISO
  * DAT1		SCLK		PB10 / SPI2_SCK
  */
+
+
+/* ----- ODEV settings ----------------------------------------------------- */
+
 
 #define	PORT_IRQ	GPIOG
 #define	BIT_IRQ		10
@@ -57,6 +61,30 @@
 #define	PORT_SCLK	GPIOB
 #define	BIT_SCLK	10
 
+#define	SPI_DEV		SPI2
+#define	SPI_AF		GPIO_AF_SPI2
+
+#define	SPI_PRESCALER	SPI_BaudRatePrescaler_8
+			/* APB1 = 42 MHz; 42 MHz / 8 = 5.25 MHz */
+
+#define	EXTI_PortSource	EXTI_PortSourceGPIOG
+
+#define	IRQn		EXTI15_10_IRQn
+#define	IRQ_HANDLER	EXTI15_10_IRQHandler
+
+
+static void enable_clocks(void)
+{
+	RCC_APB1PeriphClockCmd(RCC_APB1Periph_SPI2, ENABLE);
+	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
+	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);
+	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOG, ENABLE);
+}
+
+
+/* ----- Helper macros ----------------------------------------------------- */
+
+
 #define	OUT(pin)	gpio_inout(PORT_##pin, 1 << BIT_##pin, 1)
 #define	IN(pin)		gpio_inout(PORT_##pin, 1 << BIT_##pin, 0)
 #define	SET(pin)	GPIO_SetBits(PORT_##pin, 1 << BIT_##pin)
@@ -70,6 +98,8 @@
 
 #define	EXTI_Line_CONCAT(n)		EXTI_Line##n
 #define	EXTI_Line(n)			EXTI_Line_CONCAT(n)
+
+#define	GPIO_AF_SPI(pin)		gpio_af_spi(PORT_##pin, BIT_##pin)
 
 
 /* ----- GPIO helper functions --------------------------------------------- */
@@ -86,6 +116,21 @@ static void gpio_inout(GPIO_TypeDef *GPIOx, uint16_t pins, bool out)
 	};
 
 	GPIO_Init(GPIOx, &gpio_init);
+}
+
+
+static void gpio_af_spi(GPIO_TypeDef *gpio, int bit)
+{
+	GPIO_InitTypeDef gpio_init = {
+		.GPIO_Pin	= 1 << bit,
+		.GPIO_Mode	= GPIO_Mode_AF,
+		.GPIO_Speed	= GPIO_Speed_25MHz,
+		.GPIO_OType	= GPIO_OType_PP,
+		.GPIO_PuPd	= GPIO_PuPd_DOWN,
+	};
+
+	GPIO_PinAFConfig(gpio, bit, SPI_AF);
+	GPIO_Init(gpio, &gpio_init);
 }
 
 
@@ -153,16 +198,16 @@ static void spi_end(void)
 	 * writing the last data."
 	 */
 
-	while (SPI_I2S_GetFlagStatus(SPI2, SPI_I2S_FLAG_TXE) == RESET);
-	while (SPI_I2S_GetFlagStatus(SPI2, SPI_I2S_FLAG_BSY) == SET);
+	while (SPI_I2S_GetFlagStatus(SPI_DEV, SPI_I2S_FLAG_TXE) == RESET);
+	while (SPI_I2S_GetFlagStatus(SPI_DEV, SPI_I2S_FLAG_BSY) == SET);
 	SET(nSEL);
 }
 
 
 static void spi_send(uint8_t v)
 {
-	SPI_I2S_SendData(SPI2, v);
-	while (SPI_I2S_GetFlagStatus(SPI2, SPI_I2S_FLAG_TXE) == RESET);
+	SPI_I2S_SendData(SPI_DEV, v);
+	while (SPI_I2S_GetFlagStatus(SPI_DEV, SPI_I2S_FLAG_TXE) == RESET);
 }
 
 
@@ -177,9 +222,9 @@ static void spi_begin_rx(void)
 	 * We also have to discard any stale data sitting in the receiver.
 	 */
 
-	while (SPI_I2S_GetFlagStatus(SPI2, SPI_I2S_FLAG_BSY) == SET);
-	(void) SPI_I2S_GetFlagStatus(SPI2, SPI_I2S_FLAG_OVR);
-	(void) SPI_I2S_ReceiveData(SPI2);
+	while (SPI_I2S_GetFlagStatus(SPI_DEV, SPI_I2S_FLAG_BSY) == SET);
+	(void) SPI_I2S_GetFlagStatus(SPI_DEV, SPI_I2S_FLAG_OVR);
+	(void) SPI_I2S_ReceiveData(SPI_DEV);
 }
 
 
@@ -193,9 +238,9 @@ static uint8_t spi_recv(void)
 
 	delay_1us();
 
-	SPI_I2S_SendData(SPI2, 0);
-	while (SPI_I2S_GetFlagStatus(SPI2, SPI_I2S_FLAG_RXNE) == RESET);
-	return SPI_I2S_ReceiveData(SPI2);
+	SPI_I2S_SendData(SPI_DEV, 0);
+	while (SPI_I2S_GetFlagStatus(SPI_DEV, SPI_I2S_FLAG_RXNE) == RESET);
+	return SPI_I2S_ReceiveData(SPI_DEV);
 }
 
 
@@ -367,7 +412,7 @@ void hal_disable_trx_interrupt(void)
 }
 
 
-void EXTI15_10_IRQHandler(void)
+void IRQ_HANDLER(void)
 {
 	uint8_t irq, state;
 
@@ -415,17 +460,10 @@ void HAL_LEAVE_CRITICAL_REGION(void)
 void hal_init(void)
 {
 	static NVIC_InitTypeDef nvic_init = {
-		.NVIC_IRQChannel	= EXTI15_10_IRQn,
+		.NVIC_IRQChannel	= IRQn,
 		.NVIC_IRQChannelPreemptionPriority = 8,	/* 0-15; @@@ ? */
 		.NVIC_IRQChannelSubPriority = 8,	/* 0-15; @@@ ? */
 		.NVIC_IRQChannelCmd	= ENABLE,
-	};
-	static GPIO_InitTypeDef gpio_init = {
-		.GPIO_Pin	= GPIO_Pin_2 | GPIO_Pin_3,
-		.GPIO_Mode	= GPIO_Mode_AF,
-		.GPIO_Speed	= GPIO_Speed_25MHz,
-		.GPIO_OType	= GPIO_OType_PP,
-		.GPIO_PuPd	= GPIO_PuPd_DOWN,
 	};
 	static SPI_InitTypeDef spi_init = {
 		.SPI_Direction	= SPI_Direction_2Lines_FullDuplex,
@@ -434,23 +472,15 @@ void hal_init(void)
 		.SPI_CPOL	= SPI_CPOL_Low,
 		.SPI_CPHA	= SPI_CPHA_1Edge,
 		.SPI_NSS	= SPI_NSS_Soft,
-		.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_8,
-			/* APB1 = 42 MHz; 42 MHz / 8 = 5.25 MHz */
+		.SPI_BaudRatePrescaler = SPI_PRESCALER,
 		.SPI_FirstBit	= SPI_FirstBit_MSB,
 	};
 
-	RCC_APB1PeriphClockCmd(RCC_APB1Periph_SPI2, ENABLE);
-	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
-	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);
-	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOG, ENABLE);
+	enable_clocks();
 
-	GPIO_PinAFConfig(GPIOC, GPIO_PinSource2, GPIO_AF_SPI2);
-	GPIO_PinAFConfig(GPIOC, GPIO_PinSource3, GPIO_AF_SPI2);
-	GPIO_PinAFConfig(GPIOB, GPIO_PinSource10, GPIO_AF_SPI2);
-
-	GPIO_Init(GPIOC, &gpio_init);
-	gpio_init.GPIO_Pin = GPIO_Pin_10;
-	GPIO_Init(GPIOB, &gpio_init);
+	GPIO_AF_SPI(MOSI);
+	GPIO_AF_SPI(MISO);
+	GPIO_AF_SPI(SCLK);
 
 	SET(nSEL);
 	CLR(SLP_TR);
@@ -459,15 +489,14 @@ void hal_init(void)
 	OUT(SLP_TR);
 	IN(IRQ);
 
-	SPI_Init(SPI2, &spi_init);
-	SPI_Cmd(SPI2, ENABLE);
+	SPI_Init(SPI_DEV, &spi_init);
+	SPI_Cmd(SPI_DEV, ENABLE);
 
 	hal_register_read(RG_IRQ_STATUS);
 
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);
 	NVIC_Init(&nvic_init);
-	SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOG, /* PORT_IRQ */
-	    EXTI_PinSource(BIT_IRQ));
+	SYSCFG_EXTILineConfig(EXTI_PortSource, EXTI_PinSource(BIT_IRQ));
 	hal_enable_trx_interrupt();
 
 	/*
