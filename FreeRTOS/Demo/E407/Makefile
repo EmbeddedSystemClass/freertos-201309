@@ -19,11 +19,8 @@ CRYSTAL_Hz = 12000000
 
 CFLAGS = -Wall -Os -g \
 	-DUSE_STDPERIPH_DRIVER \
-	-mfloat-abi=hard -mfpu=fpv4-sp-d16 \
 	-I. \
 	-I../../Source/include \
-	-I../../Source/portable/GCC/ARM_CM4F \
-	-I$(DEMO_DIR)/Libraries/STM32F4xx_StdPeriph_Driver/inc  \
 	-I../Common/include
 
 CFLAGS += -DFREERTOS_BUILD_DATE="\"`date`\""
@@ -50,7 +47,6 @@ SRC = $(NAME).c eui64.c newlib.c serial.c $(HAL).c \
 	../../Source/queue.c \
 	../../Source/tasks.c \
 	../../Source/timers.c \
-	../../Source/portable/GCC/ARM_CM4F/port.c \
 	../../Source/portable/MemMang/heap_1.c
 
 include Makefile.stm32

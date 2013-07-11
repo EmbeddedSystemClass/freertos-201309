@@ -30,13 +30,20 @@ ifeq ($(CHIP_FAMILY),STM32F2xx)
 	SYSTEM_C = system_stm32f2xx.c
 	CFLAGS += -mcpu=cortex-m3 -march=armv7-m
 	CFLAGS += -DSTM32_CONF_H='"stm32f2xx_conf.h"'
+	CFLAGS += -I../../Source/portable/GCC/ARM_CM3
+	CFLAGS += -I$(DEMO_DIR)/Libraries/STM32F2xx_StdPeriph_Driver/inc
+	SRC += ../../Source/portable/GCC/ARM_CM3/port.c
 else ifeq ($(CHIP_FAMILY),STM32F4xx)
 	LD_SCRIPT = STM32F407IG_FLASH.ld
 	LD_SCRIPT_DIR = Project/TrueSTUDIO/STM324xG-EVAL
 	STARTUP_S = startup_stm32f40xx.s
 	SYSTEM_C = system_stm32f4xx.c
 	CFLAGS += -mcpu=cortex-m4 -march=armv7e-m
+	CFLAGS += -mfloat-abi=hard -mfpu=fpv4-sp-d16
 	CFLAGS += -DSTM32_CONF_H='"stm32f4xx_conf.h"'
+	CFLAGS += -I../../Source/portable/GCC/ARM_CM4F
+	CFLAGS += -I$(DEMO_DIR)/Libraries/STM32F4xx_StdPeriph_Driver/inc
+	SRC += ../../Source/portable/GCC/ARM_CM4F/port.c
 else
 $(error Please set CHIP_FAMILY to STM32F2xx or STM32F4xx)
 endif

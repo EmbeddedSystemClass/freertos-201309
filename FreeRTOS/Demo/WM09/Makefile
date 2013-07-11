@@ -13,8 +13,6 @@ CFLAGS = -Wall -Os -g \
 	-DUSE_STDPERIPH_DRIVER \
 	-I. \
 	-I../../Source/include \
-	-I../../Source/portable/GCC/ARM_CM3 \
-	-I$(DEMO_DIR)/Libraries/STM32F2xx_StdPeriph_Driver/inc  \
 	-I../Common/include
 
 CFLAGS += -DFREERTOS_BUILD_DATE="\"`date`\""
@@ -30,7 +28,6 @@ SRC = $(NAME).c ../E407/newlib.c serial.c \
 	../../Source/queue.c \
 	../../Source/tasks.c \
 	../../Source/timers.c \
-	../../Source/portable/GCC/ARM_CM3/port.c \
 	../../Source/portable/MemMang/heap_1.c
 
 include ../E407/Makefile.stm32
