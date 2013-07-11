@@ -34,31 +34,29 @@ OBJCOPY = $(ARCH)-objcopy
 ifeq ($(CHIP_FAMILY),STM32F2xx)
 	LD_SCRIPT = STM32F207IG_FLASH.ld
 	LD_SCRIPT_DIR = Project/TrueSTUDIO/STM322xG-EVAL
-	STARTUP_S = startup_stm32f2xx.s
-	SYSTEM_C = system_stm32f2xx.c
 	CFLAGS += -mcpu=cortex-m3 -march=armv7-m
-	CFLAGS += -DSTM32_CONF_H='"stm32f2xx_conf.h"'
 	CFLAGS += -I../../Source/portable/GCC/ARM_CM3
-	CFLAGS += -I$(DEMO_DIR)/Libraries/STM32F2xx_StdPeriph_Driver/inc
 	SRC += ../../Source/portable/GCC/ARM_CM3/port.c
-	DRV_DIR = $(DEMO_DIR)/Libraries/STM32F2xx_StdPeriph_Driver/src
 else ifeq ($(CHIP_FAMILY),STM32F4xx)
 	LD_SCRIPT = STM32F407IG_FLASH.ld
 	LD_SCRIPT_DIR = Project/TrueSTUDIO/STM324xG-EVAL
-	STARTUP_S = startup_stm32f40xx.s
-	SYSTEM_C = system_stm32f4xx.c
+	STARTUP_S = startup_stm32f40xx.s	# naming exception
 	CFLAGS += -mcpu=cortex-m4 -march=armv7e-m
 	CFLAGS += -mfloat-abi=hard -mfpu=fpv4-sp-d16
-	CFLAGS += -DSTM32_CONF_H='"stm32f4xx_conf.h"'
 	CFLAGS += -I../../Source/portable/GCC/ARM_CM4F
-	CFLAGS += -I$(DEMO_DIR)/Libraries/STM32F4xx_StdPeriph_Driver/inc
 	SRC += ../../Source/portable/GCC/ARM_CM4F/port.c
-	DRV_DIR = $(DEMO_DIR)/Libraries/STM32F4xx_StdPeriph_Driver/src
 else
 $(error Please set CHIP_FAMILY to STM32F2xx or STM32F4xx)
 endif
 
 CHIP_FAMILY_UC = $(shell echo $(CHIP_FAMILY) | tr a-z A-Z)
+CHIP_FAMILY_LC = $(shell echo $(CHIP_FAMILY) | tr A-Z a-z)
+
+STARTUP_S ?= startup_$(CHIP_FAMILY_LC).s
+SYSTEM_C = system_$(CHIP_FAMILY_LC).c
+CFLAGS += -DSTM32_CONF_H='"$(CHIP_FAMILY_LC)_conf.h"'
+CFLAGS += -I$(DEMO_DIR)/Libraries/$(CHIP_FAMILY)_StdPeriph_Driver/inc
+DRV_DIR = $(DEMO_DIR)/Libraries/$(CHIP_FAMILY)_StdPeriph_Driver/src
 
 #
 # STSW-STM32106STM32F2 and STM32F4 demonstration builder platform
