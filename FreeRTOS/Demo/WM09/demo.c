@@ -25,10 +25,10 @@
 
 static void serial_receive(const char *buf, unsigned len)
 {
-#if 0
-	while (len--)
-		serial_line_input_byte(*buf++);
-#endif
+	while (len--) {
+		serial_send_isr("x", 1);
+	}
+//		serial_line_input_byte(*buf++);
 }
 
 
