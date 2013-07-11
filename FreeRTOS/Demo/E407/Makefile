@@ -21,20 +21,10 @@ CFLAGS = -Wall -Os -g \
 
 CFLAGS += -DFREERTOS_BUILD_DATE="\"`date`\""
 
-# optional (if the EUI64 is not provided, we generate it from the U_ID):
-CFLAGS += -DEUI64=0xa0,0,0,0,0,0,0,3
-
-CONTIKI_FLAGS = UIP_CONF_IPV6=1
-CONTIKI_FLAGS += RF_CHANNEL=11 PAN_ADDR=0xabcd SHORT_ADDR=0x8003
-CONTIKI_FLAGS += RPL_CONF_OF=rpl_of0
-CFLAGS += -DODEV
-HAL = hal-spi
-
 DRIVERS = exti gpio misc rcc spi syscfg usart
 DRIVERS_C = $(DRIVERS:%=$(DRV_DIR)/stm32f4xx_%.c) \
 
-SRC = $(NAME).c eui64.c newlib.c serial.c $(HAL).c \
-	md5/md5.c \
+SRC = $(NAME).c newlib.c serial.c \
 	$(DRIVERS_C) \
 	../Common/Minimal/flash.c \
 	../../Source/list.c \
@@ -61,39 +51,8 @@ $(SYSTEM_C):	$(PATH_SYSTEM_C) mksystem
 clean::
 		rm -f FreeRTOSConfig.h $(SYSTEM_C)
 
-#####  Items for subordinate Contiki  #########################################
+include Makefile.contiki
 
-#
-# Translate FreeRTOS chip family to Contiki-freertos target CPU selection.
-# The target CPU is something that only exists in the hybrid. In regular
-# ports, the target CPU is the same as the platform CPU. In "native" and
-# similar, the target CPU is implicitly whatever the host has.
-#
-
-CONTIKI_TARGET_CPU = $(CONTIKI_TARGET_CPU_$(CHIP_FAMILY))
-CONTIKI_TARGET_CPU_STM32F4xx = cm4
-
-# Directory where contiki resides. Can be explicit path, subdirectory, symlink.
-CONTIKI = contiki
-OBJS += $(CONTIKI)/foo.co
-OBJS += $(CONTIKI)/contiki-freertos.a
-
-MAKE_CONTIKI = $(MAKE) -C $(CONTIKI) $(CONTIKI_FLAGS) \
-    TARGET=freertos CONTIKI_TARGET_CPU=$(CONTIKI_TARGET_CPU) \
-    FREERTOS=$(shell pwd)/../../.. \
-    FREERTOS_TARGET=$(shell pwd) \
-    FREERTOS_PORTABLE=$(shell pwd)/../../Source/portable/GCC/ARM_CM4F
-
-.PHONY:		$(CONTIKI)/foo.co $(CONTIKI)/contiki-freertos.a
-
-$(CONTIKI)/foo.co:
-		$(MAKE_CONTIKI) foo.co
-
-$(CONTIKI)/contiki-freertos.a:
-		$(MAKE_CONTIKI) contiki-freertos.a
-
-clean::
-		$(MAKE_CONTIKI) clean
 
 #####  Final dependencies  ####################################################
 
@@ -103,5 +62,3 @@ clean::
 #
 
 $(OBJS):	FreeRTOSConfig.h
-
-$(HAL).o:	$(CONTIKI)/contiki-freertos.a
