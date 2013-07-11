@@ -17,7 +17,7 @@ CFLAGS = -Wall -Os -g \
 
 CFLAGS += -DFREERTOS_BUILD_DATE="\"`date`\""
 
-DRIVERS = gpio misc rcc usart
+DRIVERS = exti gpio misc rcc spi syscfg usart
 
 SRC = $(NAME).c ../E407/newlib.c serial.c \
 	$(DRIVERS_C) \
@@ -44,6 +44,10 @@ $(SYSTEM_C):	$(PATH_SYSTEM_C) mksystem
 
 clean::
 		rm -f FreeRTOSConfig.h $(SYSTEM_C)
+
+CFLAGS += -DDEV9
+
+include ../E407/Makefile.contiki
 
 #####  Final dependencies  ####################################################
 
