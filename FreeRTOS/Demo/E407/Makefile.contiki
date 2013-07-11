@@ -25,8 +25,9 @@ SRC += eui64.c $(HAL).c md5/md5.c \
 # similar, the target CPU is implicitly whatever the host has.
 #
 
-CONTIKI_TARGET_CPU = $(CONTIKI_TARGET_CPU_$(CHIP_FAMILY))
+CONTIKI_TARGET_CPU_STM32F2xx = cm3
 CONTIKI_TARGET_CPU_STM32F4xx = cm4
+CONTIKI_TARGET_CPU = $(CONTIKI_TARGET_CPU_$(CHIP_FAMILY))
 
 # Directory where contiki resides. Can be explicit path, subdirectory, symlink.
 CONTIKI = contiki
@@ -37,7 +38,7 @@ MAKE_CONTIKI = $(MAKE) -C $(CONTIKI) $(CONTIKI_FLAGS) \
     TARGET=freertos CONTIKI_TARGET_CPU=$(CONTIKI_TARGET_CPU) \
     FREERTOS=$(shell pwd)/../../.. \
     FREERTOS_TARGET=$(shell pwd) \
-    FREERTOS_PORTABLE=$(shell pwd)/../../Source/portable/GCC/ARM_CM4F
+    FREERTOS_PORTABLE=$(shell pwd)/../../Source/portable/GCC/$(CORE_ARCH)
 
 .PHONY:		$(CONTIKI)/foo.co $(CONTIKI)/contiki-freertos.a
 
