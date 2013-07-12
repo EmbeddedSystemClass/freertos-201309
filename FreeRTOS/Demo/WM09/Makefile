@@ -45,7 +45,18 @@ $(SYSTEM_C):	$(PATH_SYSTEM_C) mksystem
 clean::
 		rm -f FreeRTOSConfig.h $(SYSTEM_C)
 
+#####  Contiki  ###############################################################
+
+#
+# Hardware layout options:
+#
+# CFLAGS	HAL		Description
+# -------------	---------------	-----------------------------------------------
+# -DDEV9	hal-spi		USI WM-N-BM-09 EVB, atben on DEV9, SPI device
+#
+
 CFLAGS += -DDEV9
+HAL = hal-spi
 
 include ../E407/Makefile.contiki
 

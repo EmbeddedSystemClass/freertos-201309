@@ -50,8 +50,22 @@ $(SYSTEM_C):	$(PATH_SYSTEM_C) mksystem
 clean::
 		rm -f FreeRTOSConfig.h $(SYSTEM_C)
 
-include Makefile.contiki
+#####  Contiki  ###############################################################
 
+#
+# Hardware layout options:
+#
+# CFLAGS	HAL		Description
+# -------------	---------------	-----------------------------------------------
+# (none)	hal-gpio	Olimex STM32-E407, atben in uS slot
+# -DODEV	hal-gpio	Olimex STM32-E407, atben on ODEV, bit-banging
+# -DODEV	hal-spi		Olimex STM32-E407, atben on ODEV, SPI device
+#
+
+CFLAGS += -DODEV
+HAL = hal-spi
+
+include Makefile.contiki
 
 #####  Final dependencies  ####################################################
 

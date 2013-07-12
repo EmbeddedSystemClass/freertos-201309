@@ -1,5 +1,5 @@
 #
-# E407/Makefile.contiki - Build FreeRTOS for Olimex STM32-E407
+# E407/Makefile.contiki - Build Contiki under FreeRTOS
 #
 # Developed by Werner Almesberger for Actility S.A., and
 # licensed under LGPLv2 by Actility S.A.
@@ -11,8 +11,6 @@ CFLAGS += -DEUI64=0xa0,0,0,0,0,0,0,3
 CONTIKI_FLAGS = UIP_CONF_IPV6=1
 CONTIKI_FLAGS += RF_CHANNEL=11 PAN_ADDR=0xabcd SHORT_ADDR=0x8003
 CONTIKI_FLAGS += RPL_CONF_OF=rpl_of0
-CFLAGS += -DODEV
-HAL = hal-spi
 
 # @@@ HACK. Consider creating directory Common.contiki
 SRC += ../E407/eui64.c ../E407/$(HAL).c ../E407/md5/md5.c
