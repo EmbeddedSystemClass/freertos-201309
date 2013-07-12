@@ -70,7 +70,7 @@ include ../E407/Makefile.contiki
 $(OBJS):	FreeRTOSConfig.h
 
 
-#####  Flash via OpenOCD #####
+#####  Flash via OpenOCD ######################################################
 
 #
 # Use BRCM's OpenOCD binary which has the BCM9WCD1EVAL1 layout and some other
@@ -79,6 +79,8 @@ $(OBJS):	FreeRTOSConfig.h
 WICED = ../../../../wiced
 OPENOCD = $(WICED)/Tools/OpenOCD/Linux64/openocd-all-brcm-libftdi
 WICED_OPENOCD = $(WICED)/Tools/OpenOCD
+
+.PHONY:		flash run
 
 flash:		$(NAME).elf
 		$(OPENOCD) \
