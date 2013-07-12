@@ -135,7 +135,7 @@ $(NAME).bin:	$(NAME).elf
 		    { rm -f $@; exit 1; }
 
 #
-# .SECONDEXPANSION enables deferred evaluation of OBJS, so that we we change
+# .SECONDEXPANSION enables deferred evaluation of OBJS, so that we can change
 # it after including Makefile.stm32. That way, Makefile.stm32 can provide
 # DEMOBUILDER (which is needed relatively early in the top-level Makefile) and
 # still have valid OBJS for the rest.

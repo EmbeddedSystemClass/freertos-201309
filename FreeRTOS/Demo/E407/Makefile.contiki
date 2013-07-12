@@ -50,4 +50,4 @@ $(CONTIKI)/contiki-freertos.a:
 clean::
 		$(MAKE_CONTIKI) clean
 
-$(HAL).o:	$(CONTIKI)/contiki-freertos.a
+../E407/$(HAL).o: $(CONTIKI)/contiki-freertos.a
