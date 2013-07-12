@@ -48,7 +48,7 @@
 /* ----- ODEV settings ----------------------------------------------------- */
 
 
-#if defined(ODEV) && !defined(DEV9)
+#ifdef ODEV
 
 #define	PORT_IRQ	GPIOG
 #define	BIT_IRQ		10
@@ -83,7 +83,7 @@ static void enable_clocks(void)
 	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOG, ENABLE);
 }
 
-#endif /* ODEV && !DEV9 */
+#endif /* ODEV */
 
 
 /* ----- DEV9 settings ----------------------------------------------------- */
