@@ -245,9 +245,8 @@ static void prvCopyDataFromQueue( xQUEUE * const pxQueue, const void *pvBuffer )
 
 portBASE_TYPE xQueueGenericReset( xQueueHandle xQueue, portBASE_TYPE xNewQueue )
 {
-xQUEUE *pxQueue;
+xQUEUE * const pxQueue = ( xQUEUE * ) xQueue;
 
-	pxQueue = ( xQUEUE * ) xQueue;
 	configASSERT( pxQueue );
 
 	taskENTER_CRITICAL();
@@ -447,9 +446,8 @@ xQueueHandle xReturn = NULL;
 	portBASE_TYPE xQueueGiveMutexRecursive( xQueueHandle xMutex )
 	{
 	portBASE_TYPE xReturn;
-	xQUEUE *pxMutex;
+	xQUEUE * const pxMutex = ( xQUEUE * ) xMutex;
 
-		pxMutex = ( xQUEUE * ) xMutex;
 		configASSERT( pxMutex );
 
 		/* If this is the task that holds the mutex then pxMutexHolder will not
@@ -498,9 +496,8 @@ xQueueHandle xReturn = NULL;
 	portBASE_TYPE xQueueTakeMutexRecursive( xQueueHandle xMutex, portTickType xBlockTime )
 	{
 	portBASE_TYPE xReturn;
-	xQUEUE *pxMutex;
+	xQUEUE * const pxMutex = ( xQUEUE * ) xMutex;
 
-		pxMutex = ( xQUEUE * ) xMutex;
 		configASSERT( pxMutex );
 
 		/* Comments regarding mutual exclusion as per those within
@@ -565,9 +562,8 @@ signed portBASE_TYPE xQueueGenericSend( xQueueHandle xQueue, const void * const 
 {
 signed portBASE_TYPE xEntryTimeSet = pdFALSE;
 xTimeOutType xTimeOut;
-xQUEUE *pxQueue;
+xQUEUE * const pxQueue = ( xQUEUE * ) xQueue;
 
-	pxQueue = ( xQUEUE * ) xQueue;
 	configASSERT( pxQueue );
 	configASSERT( !( ( pvItemToQueue == NULL ) && ( pxQueue->uxItemSize != ( unsigned portBASE_TYPE ) 0U ) ) );
 	configASSERT( !( ( xCopyPosition == queueOVERWRITE ) && ( pxQueue->uxLength != 1 ) ) );
@@ -724,9 +720,8 @@ xQUEUE *pxQueue;
 	{
 	signed portBASE_TYPE xEntryTimeSet = pdFALSE;
 	xTimeOutType xTimeOut;
-	xQUEUE *pxQueue;
+	xQUEUE * const pxQueue = ( xQUEUE * ) xQueue;
 
-		pxQueue = ( xQUEUE * ) xQueue;
 		configASSERT( pxQueue );
 		configASSERT( !( ( pvItemToQueue == NULL ) && ( pxQueue->uxItemSize != ( unsigned portBASE_TYPE ) 0U ) ) );
 
@@ -804,9 +799,8 @@ xQUEUE *pxQueue;
 	signed portBASE_TYPE xEntryTimeSet = pdFALSE;
 	xTimeOutType xTimeOut;
 	signed char *pcOriginalReadPosition;
-	xQUEUE *pxQueue;
+	xQUEUE * const pxQueue = ( xQUEUE * ) xQueue;
 
-		pxQueue = ( xQUEUE * ) xQueue;
 		configASSERT( pxQueue );
 		configASSERT( !( ( pvBuffer == NULL ) && ( pxQueue->uxItemSize != ( unsigned portBASE_TYPE ) 0U ) ) );
 
@@ -825,7 +819,7 @@ xQUEUE *pxQueue;
 					{
 						traceQUEUE_RECEIVE( pxQueue );
 
-						/* We are actually removing data. */
+						/* Data is actually being removed (not just peeked). */
 						--( pxQueue->uxMessagesWaiting );
 
 						#if ( configUSE_MUTEXES == 1 )
@@ -934,12 +928,26 @@ signed portBASE_TYPE xQueueGenericSendFromISR( xQueueHandle xQueue, const void *
 {
 signed portBASE_TYPE xReturn;
 unsigned portBASE_TYPE uxSavedInterruptStatus;
-xQUEUE *pxQueue;
+xQUEUE * const pxQueue = ( xQUEUE * ) xQueue;
 
-	pxQueue = ( xQUEUE * ) xQueue;
 	configASSERT( pxQueue );
 	configASSERT( !( ( pvItemToQueue == NULL ) && ( pxQueue->uxItemSize != ( unsigned portBASE_TYPE ) 0U ) ) );
 	configASSERT( !( ( xCopyPosition == queueOVERWRITE ) && ( pxQueue->uxLength != 1 ) ) );
+
+	/* RTOS ports that support interrupt nesting have the concept of a maximum
+	system call (or maximum API call) interrupt priority.  Interrupts that are
+	above the maximum system call priority are keep permanently enabled, even
+	when the RTOS kernel is in a critical section, but cannot make any calls to
+	FreeRTOS API functions.  If configASSERT() is defined in FreeRTOSConfig.h
+	then portASSERT_IF_INTERRUPT_PRIORITY_INVALID() will result in an assertion
+	failure if a FreeRTOS API function is called from an interrupt that has been
+	assigned a priority above the configured maximum system call priority.
+	Only FreeRTOS functions that end in FromISR can be called from interrupts
+	that have been assigned a priority at or (logically) below the maximum
+	system call	interrupt priority.  FreeRTOS maintains a separate interrupt
+	safe API to ensure interrupt entry is as fast and as simple as possible.
+	More information (albeit Cortex-M specific) is provided on the following
+	link: http://www.freertos.org/RTOS-Cortex-M3-M4.html */
 	portASSERT_IF_INTERRUPT_PRIORITY_INVALID();
 
 	/* Similar to xQueueGenericSend, except we don't block if there is no room
@@ -1033,9 +1041,8 @@ signed portBASE_TYPE xQueueGenericReceive( xQueueHandle xQueue, void * const pvB
 signed portBASE_TYPE xEntryTimeSet = pdFALSE;
 xTimeOutType xTimeOut;
 signed char *pcOriginalReadPosition;
-xQUEUE *pxQueue;
+xQUEUE * const pxQueue = ( xQUEUE * ) xQueue;
 
-	pxQueue = ( xQUEUE * ) xQueue;
 	configASSERT( pxQueue );
 	configASSERT( !( ( pvBuffer == NULL ) && ( pxQueue->uxItemSize != ( unsigned portBASE_TYPE ) 0U ) ) );
 
@@ -1184,11 +1191,25 @@ signed portBASE_TYPE xQueueReceiveFromISR( xQueueHandle xQueue, void * const pvB
 {
 signed portBASE_TYPE xReturn;
 unsigned portBASE_TYPE uxSavedInterruptStatus;
-xQUEUE *pxQueue;
+xQUEUE * const pxQueue = ( xQUEUE * ) xQueue;
 
-	pxQueue = ( xQUEUE * ) xQueue;
 	configASSERT( pxQueue );
 	configASSERT( !( ( pvBuffer == NULL ) && ( pxQueue->uxItemSize != ( unsigned portBASE_TYPE ) 0U ) ) );
+
+	/* RTOS ports that support interrupt nesting have the concept of a maximum
+	system call (or maximum API call) interrupt priority.  Interrupts that are
+	above the maximum system call priority are keep permanently enabled, even 
+	when the RTOS kernel is in a critical section, but cannot make any calls to
+	FreeRTOS API functions.  If configASSERT() is defined in FreeRTOSConfig.h 
+	then portASSERT_IF_INTERRUPT_PRIORITY_INVALID() will result in an assertion
+	failure if a FreeRTOS API function is called from an interrupt that has been
+	assigned a priority above the configured maximum system call priority.
+	Only FreeRTOS functions that end in FromISR can be called from interrupts
+	that have been assigned a priority at or (logically) below the maximum 
+	system call	interrupt priority.  FreeRTOS maintains a separate interrupt 
+	safe API to ensure interrupt entry is as fast and as simple as possible.  
+	More information (albeit Cortex-M specific) is provided on the following 
+	link: http://www.freertos.org/RTOS-Cortex-M3-M4.html */
 	portASSERT_IF_INTERRUPT_PRIORITY_INVALID();
 
 	uxSavedInterruptStatus = portSET_INTERRUPT_MASK_FROM_ISR();
@@ -1246,11 +1267,25 @@ signed portBASE_TYPE xQueuePeekFromISR( xQueueHandle xQueue, void * const pvBuff
 signed portBASE_TYPE xReturn;
 unsigned portBASE_TYPE uxSavedInterruptStatus;
 signed char *pcOriginalReadPosition;
-xQUEUE *pxQueue;
+xQUEUE * const pxQueue = ( xQUEUE * ) xQueue;
 
-	pxQueue = ( xQUEUE * ) xQueue;
 	configASSERT( pxQueue );
 	configASSERT( !( ( pvBuffer == NULL ) && ( pxQueue->uxItemSize != ( unsigned portBASE_TYPE ) 0U ) ) );
+
+	/* RTOS ports that support interrupt nesting have the concept of a maximum
+	system call (or maximum API call) interrupt priority.  Interrupts that are
+	above the maximum system call priority are keep permanently enabled, even 
+	when the RTOS kernel is in a critical section, but cannot make any calls to
+	FreeRTOS API functions.  If configASSERT() is defined in FreeRTOSConfig.h 
+	then portASSERT_IF_INTERRUPT_PRIORITY_INVALID() will result in an assertion
+	failure if a FreeRTOS API function is called from an interrupt that has been
+	assigned a priority above the configured maximum system call priority.
+	Only FreeRTOS functions that end in FromISR can be called from interrupts
+	that have been assigned a priority at or (logically) below the maximum 
+	system call	interrupt priority.  FreeRTOS maintains a separate interrupt 
+	safe API to ensure interrupt entry is as fast and as simple as possible.  
+	More information (albeit Cortex-M specific) is provided on the following 
+	link: http://www.freertos.org/RTOS-Cortex-M3-M4.html */
 	portASSERT_IF_INTERRUPT_PRIORITY_INVALID();
 
 	uxSavedInterruptStatus = portSET_INTERRUPT_MASK_FROM_ISR();
@@ -1308,9 +1343,8 @@ unsigned portBASE_TYPE uxReturn;
 
 void vQueueDelete( xQueueHandle xQueue )
 {
-xQUEUE *pxQueue;
+xQUEUE * const pxQueue = ( xQUEUE * ) xQueue;
 
-	pxQueue = ( xQUEUE * ) xQueue;
 	configASSERT( pxQueue );
 
 	traceQUEUE_DELETE( pxQueue );
@@ -1600,9 +1634,7 @@ signed portBASE_TYPE xReturn;
 	signed portBASE_TYPE xQueueCRSend( xQueueHandle xQueue, const void *pvItemToQueue, portTickType xTicksToWait )
 	{
 	signed portBASE_TYPE xReturn;
-	xQUEUE *pxQueue;
-
-		pxQueue = ( xQUEUE * ) xQueue;
+	xQUEUE * const pxQueue = ( xQUEUE * ) xQueue;
 
 		/* If the queue is already full we may have to block.  A critical section
 		is required to prevent an interrupt removing something from the queue
@@ -1671,9 +1703,7 @@ signed portBASE_TYPE xReturn;
 	signed portBASE_TYPE xQueueCRReceive( xQueueHandle xQueue, void *pvBuffer, portTickType xTicksToWait )
 	{
 	signed portBASE_TYPE xReturn;
-	xQUEUE *pxQueue;
-
-		pxQueue = ( xQUEUE * ) xQueue;
+	xQUEUE * const pxQueue = ( xQUEUE * ) xQueue;
 
 		/* If the queue is already empty we may have to block.  A critical section
 		is required to prevent an interrupt adding something to the queue
@@ -1746,9 +1776,7 @@ signed portBASE_TYPE xReturn;
 
 	signed portBASE_TYPE xQueueCRSendFromISR( xQueueHandle xQueue, const void *pvItemToQueue, signed portBASE_TYPE xCoRoutinePreviouslyWoken )
 	{
-	xQUEUE *pxQueue;
-
-		pxQueue = ( xQUEUE * ) xQueue;
+	xQUEUE * const pxQueue = ( xQUEUE * ) xQueue;
 
 		/* Cannot block within an ISR so if there is no space on the queue then
 		exit without doing anything. */
@@ -1781,9 +1809,7 @@ signed portBASE_TYPE xReturn;
 	signed portBASE_TYPE xQueueCRReceiveFromISR( xQueueHandle xQueue, void *pvBuffer, signed portBASE_TYPE *pxCoRoutineWoken )
 	{
 	signed portBASE_TYPE xReturn;
-	xQUEUE * pxQueue;
-
-		pxQueue = ( xQUEUE * ) xQueue;
+	xQUEUE * const pxQueue = ( xQUEUE * ) xQueue;
 
 		/* We cannot block from an ISR, so check there is data available. If
 		not then just leave without doing anything. */
@@ -1872,9 +1898,7 @@ signed portBASE_TYPE xReturn;
 
 	void vQueueWaitForMessageRestricted( xQueueHandle xQueue, portTickType xTicksToWait )
 	{
-	xQUEUE *pxQueue;
-
-		pxQueue = ( xQUEUE * ) xQueue;
+	xQUEUE * const pxQueue = ( xQUEUE * ) xQueue;
 
 		/* This function should not be called by application code hence the
 		'Restricted' in its name.  It is not part of the public API.  It is
@@ -1954,9 +1978,7 @@ signed portBASE_TYPE xReturn;
 	portBASE_TYPE xQueueRemoveFromSet( xQueueSetMemberHandle xQueueOrSemaphore, xQueueSetHandle xQueueSet )
 	{
 	portBASE_TYPE xReturn;
-	xQUEUE *pxQueueOrSemaphore;
-
-		pxQueueOrSemaphore = ( xQUEUE * ) xQueueOrSemaphore;
+	xQUEUE * const pxQueueOrSemaphore = ( xQUEUE * ) xQueueOrSemaphore;
 
 		if( pxQueueOrSemaphore->pxQueueSetContainer != xQueueSet )
 		{

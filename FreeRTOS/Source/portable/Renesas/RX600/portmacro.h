@@ -56,19 +56,19 @@
     ***************************************************************************
 
 
-    http://www.FreeRTOS.org - Documentation, books, training, latest versions, 
+    http://www.FreeRTOS.org - Documentation, books, training, latest versions,
     license and Real Time Engineers Ltd. contact details.
 
     http://www.FreeRTOS.org/plus - A selection of FreeRTOS ecosystem products,
     including FreeRTOS+Trace - an indispensable productivity tool, and our new
     fully thread aware and reentrant UDP/IP stack.
 
-    http://www.OpenRTOS.com - Real Time Engineers ltd license FreeRTOS to High 
-    Integrity Systems, who sell the code with commercial support, 
+    http://www.OpenRTOS.com - Real Time Engineers ltd license FreeRTOS to High
+    Integrity Systems, who sell the code with commercial support,
     indemnification and middleware, under the OpenRTOS brand.
-    
-    http://www.SafeRTOS.com - High Integrity Systems also provide a safety 
-    engineered and independently SIL3 certified version for use in safety and 
+
+    http://www.SafeRTOS.com - High Integrity Systems also provide a safety
+    engineered and independently SIL3 certified version for use in safety and
     mission critical applications that require provable dependability.
 */
 
@@ -84,7 +84,7 @@ extern "C" {
 #include "machine.h"
 
 /*-----------------------------------------------------------
- * Port specific definitions.  
+ * Port specific definitions.
  *
  * The settings in this file configure FreeRTOS correctly for the
  * given hardware and compiler.
@@ -115,12 +115,9 @@ portSTACK_TYPE and portBASE_TYPE. */
 /* Hardware specifics. */
 #define portBYTE_ALIGNMENT				8	/* Could make four, according to manual. */
 #define portSTACK_GROWTH				-1
-#define portTICK_RATE_MS				( ( portTickType ) 1000 / configTICK_RATE_HZ )		
+#define portTICK_RATE_MS				( ( portTickType ) 1000 / configTICK_RATE_HZ )
 #define portNOP()						nop()
 
-#ifdef configASSERT
-	#define portASSERT_IF_INTERRUPT_PRIORITY_INVALID() configASSERT( ( get_ipl() <= configMAX_SYSCALL_INTERRUPT_PRIORITY ) )
-#endif
 
 #pragma inline_asm vPortYield
 static void vPortYield( void )
@@ -140,12 +137,22 @@ static void vPortYield( void )
 #define portYIELD()	vPortYield()
 #define portYIELD_FROM_ISR( x )	if( x != pdFALSE ) portYIELD()
 
-/*
- * These macros should be called directly, but through the taskENTER_CRITICAL()
- * and taskEXIT_CRITICAL() macros.
- */
-#define portENABLE_INTERRUPTS() 	set_ipl( 0 )
-#define portDISABLE_INTERRUPTS() 	set_ipl( configMAX_SYSCALL_INTERRUPT_PRIORITY )
+/* These macros should not be called directly, but through the 
+taskENTER_CRITICAL() and taskEXIT_CRITICAL() macros.  An extra check is 
+performed if configASSERT() is defined to ensure an assertion handler does not 
+inadvertently attempt to lower the IPL when the call to assert was triggered 
+because the IPL value was found to be above	configMAX_SYSCALL_INTERRUPT_PRIORITY 
+when an ISR safe FreeRTOS API function was executed.  ISR safe FreeRTOS API 
+functions are those that end in FromISR.  FreeRTOS maintains a separate 
+interrupt API to ensure API function and interrupt entry is as fast and as 
+simple as possible. */
+#define portENABLE_INTERRUPTS() 	set_ipl( ( long ) 0 )
+#ifdef configASSERT
+	#define portASSERT_IF_INTERRUPT_PRIORITY_INVALID() configASSERT( ( get_ipl() <= configMAX_SYSCALL_INTERRUPT_PRIORITY ) )
+	#define portDISABLE_INTERRUPTS() 	if( get_ipl() < configMAX_SYSCALL_INTERRUPT_PRIORITY ) set_ipl( ( long ) configMAX_SYSCALL_INTERRUPT_PRIORITY )
+#else
+	#define portDISABLE_INTERRUPTS() 	set_ipl( ( long ) configMAX_SYSCALL_INTERRUPT_PRIORITY )
+#endif
 
 /* Critical nesting counts are stored in the TCB. */
 #define portCRITICAL_NESTING_IN_TCB ( 1 )
