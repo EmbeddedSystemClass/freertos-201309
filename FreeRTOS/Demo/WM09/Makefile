@@ -19,7 +19,7 @@ CFLAGS += -DFREERTOS_BUILD_DATE="\"`date`\""
 
 DRIVERS = exti gpio misc rcc spi syscfg usart
 
-SRC = $(NAME).c ../E407/newlib.c serial.c \
+SRC = $(NAME).c ../Shared/newlib/newlib.c serial.c \
 	$(DRIVERS_C) \
 	../../Source/list.c \
 	../../Source/queue.c \
