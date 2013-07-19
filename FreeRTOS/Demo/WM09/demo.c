@@ -16,8 +16,8 @@
 #include STM32_CONF_H
 
 #include "../E407/serial.h"
-#include "../E407/eui64.h"
-#include "../E407/contiki.h"
+#include "eui64.h"
+#include "contiki.h"
 
 #include <stdio.h>
 

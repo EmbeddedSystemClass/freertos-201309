@@ -60,7 +60,7 @@ clean::
 CFLAGS += -DDEV9
 HAL = hal-spi
 
-include ../E407/Makefile.contiki
+include ../Shared/Contiki/Makefile.contiki
 
 #####  Final dependencies  ####################################################
 

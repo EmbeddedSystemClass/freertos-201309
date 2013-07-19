@@ -1,5 +1,5 @@
 #
-# E407/Makefile.contiki - Build Contiki under FreeRTOS
+# Shared/Contiki/Makefile.contiki - Build Contiki under FreeRTOS
 #
 # Developed by Werner Almesberger for Actility S.A., and
 # licensed under LGPLv2 by Actility S.A.
@@ -8,12 +8,19 @@
 # optional (if the EUI64 is not provided, we generate it from the U_ID):
 CFLAGS += -DEUI64=0xa0,0,0,0,0,0,0,3
 
+#
+# Path from the platform build directories.
+#
+SHR_CONTIKI_DIR = ../Shared/Contiki
+
+CFLAGS += -I$(SHR_CONTIKI_DIR)
+
 CONTIKI_FLAGS = UIP_CONF_IPV6=1
 CONTIKI_FLAGS += RF_CHANNEL=11 PAN_ADDR=0xabcd SHORT_ADDR=0x8003
 CONTIKI_FLAGS += RPL_CONF_OF=rpl_of0
 
-# @@@ HACK. Consider creating directory Common.contiki
-SRC += ../E407/eui64.c ../E407/$(HAL).c ../E407/md5/md5.c
+SRC += $(SHR_CONTIKI_DIR)/eui64.c $(SHR_CONTIKI_DIR)/$(HAL).c
+SRC += $(SHR_CONTIKI_DIR)/md5/md5.c
 
 #####  Items for subordinate Contiki  #########################################
 
@@ -29,7 +36,7 @@ CONTIKI_TARGET_CPU_STM32F4xx = cm4
 CONTIKI_TARGET_CPU = $(CONTIKI_TARGET_CPU_$(CHIP_FAMILY))
 
 # Directory where contiki resides. Can be explicit path, subdirectory, symlink.
-CONTIKI = contiki
+CONTIKI = $(SHR_CONTIKI_DIR)/contiki
 OBJS += $(CONTIKI)/foo.co
 OBJS += $(CONTIKI)/contiki-freertos.a
 
@@ -50,4 +57,4 @@ $(CONTIKI)/contiki-freertos.a:
 clean::
 		$(MAKE_CONTIKI) clean
 
-../E407/$(HAL).o: $(CONTIKI)/contiki-freertos.a
+$(SHR_CONTIKI_DIR)/$(HAL).o: $(CONTIKI)/contiki-freertos.a

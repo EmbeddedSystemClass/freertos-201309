@@ -67,7 +67,7 @@ clean::
 CFLAGS += -DODEV
 HAL = hal-spi
 
-include Makefile.contiki
+include ../Shared/Contiki/Makefile.contiki
 
 #####  Final dependencies  ####################################################
 
