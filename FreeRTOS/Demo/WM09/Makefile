@@ -60,6 +60,11 @@ clean::
 CFLAGS += -DDEV9
 HAL = hal-spi
 
+EUI64 = 0xa0,0,0,0,0,0,0,3
+RF_CHANNEL = 11 
+PAN_ADDR = 0xabcd 
+SHORT_ADDR = 0x8003
+
 include ../Shared/Contiki/Makefile.contiki
 
 #####  Final dependencies  ####################################################

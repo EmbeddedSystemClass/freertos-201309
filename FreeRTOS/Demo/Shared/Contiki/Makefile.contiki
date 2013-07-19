@@ -5,9 +5,6 @@
 # licensed under LGPLv2 by Actility S.A.
 #
 
-# optional (if the EUI64 is not provided, we generate it from the U_ID):
-CFLAGS += -DEUI64=0xa0,0,0,0,0,0,0,3
-
 #
 # Path from the platform build directories.
 #
@@ -15,8 +12,14 @@ SHR_CONTIKI_DIR = ../Shared/Contiki
 
 CFLAGS += -I$(SHR_CONTIKI_DIR)
 
+# If the EUI64 is not provided, we generate it from the U_ID:
+ifdef EUI64
+CFLAGS += -DEUI64=$(EUI54)
+endif
+
 CONTIKI_FLAGS = UIP_CONF_IPV6=1
-CONTIKI_FLAGS += RF_CHANNEL=11 PAN_ADDR=0xabcd SHORT_ADDR=0x8003
+CONTIKI_FLAGS += RF_CHANNEL=$(RF_CHANNEL) PAN_ADDR=$(PAN_ADDR)
+CONTIKI_FLAGS += SHORT_ADDR=$(SHORT_ADDR)
 CONTIKI_FLAGS += RPL_CONF_OF=rpl_of0
 
 SRC += $(SHR_CONTIKI_DIR)/eui64.c $(SHR_CONTIKI_DIR)/$(HAL).c
