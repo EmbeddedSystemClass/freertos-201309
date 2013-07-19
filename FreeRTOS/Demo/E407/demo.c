@@ -47,7 +47,9 @@ int main(void)
 
 	/*
 	 * Ensure all priority bits are assigned as preemption priority bits.
-	 * (Taken verbatim from ../CORTEX_M4F_STM32F407ZG-SK/main.c)
+	 *
+	 * See http://www.freertos.org/RTOS-Cortex-M3-M4.html
+	 * section "Preempt Priority and Subpriority".
 	 */
 
 	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_4);
