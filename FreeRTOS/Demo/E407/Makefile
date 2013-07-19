@@ -41,8 +41,10 @@ $(DRIVERS_C):	$(DEMOBUILDER)
 # 1300 bytes.
 #
 
-FreeRTOSConfig.h: ../CORTEX_M4F_STM32F407ZG-SK/FreeRTOSConfig.h mkconfig
-		$(BUILD) ./mkconfig $< >$@ || { rm -f $@; exit 1; }
+FreeRTOSConfig.h: ../CORTEX_M4F_STM32F407ZG-SK/FreeRTOSConfig.h \
+		  ../Shared/newlib/mkconfig
+		$(BUILD) ../Shared/newlib/mkconfig -s 1300 $< >$@ || \
+		    { rm -f $@; exit 1; }
 
 $(SYSTEM_C):	$(PATH_SYSTEM_C) mksystem
 		$(BUILD) ./mksystem $< >$@ || { rm -f $@; exit 1; }
