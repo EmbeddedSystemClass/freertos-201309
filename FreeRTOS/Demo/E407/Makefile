@@ -32,7 +32,7 @@ SRC = $(NAME).c newlib.c serial.c \
 	../../Source/timers.c \
 	../../Source/portable/MemMang/heap_1.c
 
-include Makefile.stm32
+include ../Shared/STM32/Makefile.stm32
 
 $(DRIVERS_C):	$(DEMOBUILDER)
 

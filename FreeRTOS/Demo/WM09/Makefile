@@ -27,7 +27,7 @@ SRC = $(NAME).c ../E407/newlib.c serial.c \
 	../../Source/timers.c \
 	../../Source/portable/MemMang/heap_1.c
 
-include ../E407/Makefile.stm32
+include ../Shared/STM32/Makefile.stm32
 
 $(DRIVERS_C):	$(DEMOBUILDER)
 
