@@ -40,9 +40,12 @@ EOF
 # - change compiler name to GCC
 # - increase stack size from 130 bytes to 1300 bytes
 # - set configUSE_NEWLIB_REENTRANT
+# - call a handler on assertion failure, instead of just freezing
 #
 
 sed -e 's/__ICCARM__/__GNUC__/' \
     -e "s/130/$stack/" \
     -e '/configUSE_PREEMPTION/{p;s/PREEMPTION/NEWLIB_REENTRANT/;}' \
+    -e 's/for(/void fail_assertion(const char *, unsigned); \\\
+	fail_assertion(__FILE__, __LINE__); for(/' \
     "$1"

@@ -117,3 +117,10 @@ void vApplicationStackOverflowHook(xTaskHandle pxTask, signed char *pcTaskName)
 {
 	/* @@@ */
 }
+
+
+void fail_assertion(const char *file, unsigned line)
+{
+	/* @@@ for now, printf seems to be safe enough. */
+	printf("%s:%d: assertion failed\n", file, line);
+}       
