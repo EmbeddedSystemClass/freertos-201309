@@ -37,13 +37,15 @@ EOF
 #
 # This changes the following:
 #
+# - strip those pesky DOS carriage returns
 # - change compiler name to GCC
 # - increase stack size from 130 bytes to 1300 bytes
 # - set configUSE_NEWLIB_REENTRANT
 # - call a handler on assertion failure, instead of just freezing
 #
 
-sed -e 's/__ICCARM__/__GNUC__/' \
+sed -e 's/\r//' \
+    -e 's/__ICCARM__/__GNUC__/' \
     -e "s/130/$stack/" \
     -e '/configUSE_PREEMPTION/{p;s/PREEMPTION/NEWLIB_REENTRANT/;}' \
     -e 's/for(/void fail_assertion(const char *, unsigned); \\\
