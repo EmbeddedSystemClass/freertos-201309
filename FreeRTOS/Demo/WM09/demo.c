@@ -15,7 +15,7 @@
 
 #include STM32_CONF_H
 
-#include "../E407/serial.h"
+#include "../E407/console.h"
 #include "eui64.h"
 #include "contiki.h"
 
@@ -25,7 +25,7 @@
 #define mainFLASH_TASK_PRIORITY		(tskIDLE_PRIORITY + 1UL)
 
 
-static void serial_receive(const char *buf, unsigned len)
+static void console_receive(const char *buf, unsigned len)
 {
 	while (len--)
 		serial_line_input_byte(*buf++);
@@ -55,8 +55,8 @@ int main(void)
 
 //	vParTestInitialise();
 
-	serial_recv = serial_receive;
-	serial_init();
+	console_recv = console_receive;
+	console_init();
 
 	printf("FreeRTOS Build: %s\n", FREERTOS_BUILD_DATE);
 

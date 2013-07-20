@@ -11,7 +11,7 @@ CRYSTAL_Hz = 26000000
 
 CFLAGS = -Wall -Os -g \
 	-DUSE_STDPERIPH_DRIVER \
-	-I. \
+	-I. -I../E407 \
 	-I../../Source/include \
 	-I../Common/include
 
@@ -19,7 +19,7 @@ CFLAGS += -DFREERTOS_BUILD_DATE="\"`date`\""
 
 DRIVERS = exti gpio misc rcc spi syscfg usart
 
-SRC = $(NAME).c ../Shared/newlib/newlib.c serial.c \
+SRC = $(NAME).c ../Shared/newlib/newlib.c console.c \
 	$(DRIVERS_C) \
 	../../Source/list.c \
 	../../Source/queue.c \

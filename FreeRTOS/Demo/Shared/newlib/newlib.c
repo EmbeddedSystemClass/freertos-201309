@@ -13,7 +13,7 @@
 
 #include STM32_CONF_H
 
-#include "serial.h"
+#include "console.h"
 
 
 int _close(int fd)
@@ -76,8 +76,8 @@ ssize_t _write(int fd, const void *buf, size_t count)
 		char c = *(const char *) buf++;
 
 		if (c == '\n')	
-			serial_send("\r", 1);
-		serial_send(&c, 1);
+			console_send("\r", 1);
+		console_send(&c, 1);
 	}
 	return ret;
 }

@@ -1,5 +1,5 @@
 /*
- * serial.c - Serial console
+ * console.c - Serial console
  *
  * Developed by Werner Almesberger for Actility S.A., and
  * licensed under LGPLv2 by Actility S.A.
@@ -14,13 +14,13 @@
 
 #include STM32_CONF_H
 
-#include "serial.h"
+#include "console.h"
 
 
-void (*serial_recv)(const char *buf, unsigned n) = NULL;
+void (*console_recv)(const char *buf, unsigned n) = NULL;
 
 
-void serial_send_isr(const char *buf, unsigned len)
+void console_send_isr(const char *buf, unsigned len)
 {
 	while (len--) {
 		while (USART_GetFlagStatus(USART1, USART_FLAG_TXE) == RESET);
@@ -29,9 +29,9 @@ void serial_send_isr(const char *buf, unsigned len)
 }
 
 
-void serial_send(const char *buf, unsigned len)
+void console_send(const char *buf, unsigned len)
 {
-	serial_send_isr(buf, len);
+	console_send_isr(buf, len);
 }
 
 
@@ -41,13 +41,13 @@ void USART1_IRQHandler(void)
 
 	while (USART_GetFlagStatus(USART1, USART_FLAG_RXNE) == SET) {
 		ch = USART_ReceiveData(USART1);
-		if (serial_recv)
-			serial_recv(&ch, 1);
+		if (console_recv)
+			console_recv(&ch, 1);
 	}
 }
 
 
-void serial_init(void)
+void console_init(void)
 {
 	static USART_InitTypeDef uart_init = {
 		.USART_BaudRate		= 115200,
