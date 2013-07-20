@@ -1437,8 +1437,7 @@ unsigned portBASE_TYPE uxSavedInterruptStatus;
 	safe API to ensure interrupt entry is as fast and as simple as possible.
 	More information (albeit Cortex-M specific) is provided on the following
 	link: http://www.freertos.org/RTOS-Cortex-M3-M4.html */
-// @@@ we fail this, hanging the system. still have to find out why.
-//	portASSERT_IF_INTERRUPT_PRIORITY_INVALID();
+	portASSERT_IF_INTERRUPT_PRIORITY_INVALID();
 
 	uxSavedInterruptStatus = portSET_INTERRUPT_MASK_FROM_ISR();
 	xReturn = xTickCount;

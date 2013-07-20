@@ -54,6 +54,14 @@ int main(void)
 
 	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_4);
 
+	/*
+	 * Furthermore, as explained at the end of
+	 * Source/portable/GCC/ARM_CM3/port.c:vPortValidateInterruptPriority
+	 * we need to do this to avoid failing the assertion.
+	 */
+
+	NVIC_SetPriorityGrouping(0);
+
 //	vParTestInitialise();
 
 	init_led();
