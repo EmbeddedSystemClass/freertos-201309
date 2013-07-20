@@ -11,9 +11,10 @@ CRYSTAL_Hz = 26000000
 
 CFLAGS = -Wall -Os -g \
 	-DUSE_STDPERIPH_DRIVER \
-	-I. -I../E407 \
+	-I. \
 	-I../../Source/include \
-	-I../Common/include
+	-I../Common/include \
+	-I../Shared/newlib
 
 CFLAGS += -DFREERTOS_BUILD_DATE="\"`date`\""
 

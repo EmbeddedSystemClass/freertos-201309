@@ -5,6 +5,12 @@
  * licensed under LGPLv2 by Actility S.A.
  */
 
+/*
+ * The serial console functions have to be implemented by the respective
+ * platform code, but since newlib calls these functions we need to have the 
+ * declarations where newlib can see them, i.e., here.
+ */
+
 #ifndef CONSOLE_H
 #define	CONSOLE_H
 

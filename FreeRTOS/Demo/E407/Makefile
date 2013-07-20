@@ -17,7 +17,8 @@ CFLAGS = -Wall -Os -g \
 	-DUSE_STDPERIPH_DRIVER \
 	-I. \
 	-I../../Source/include \
-	-I../Common/include
+	-I../Common/include \
+	-I../Shared/newlib
 
 CFLAGS += -DFREERTOS_BUILD_DATE="\"`date`\""
 

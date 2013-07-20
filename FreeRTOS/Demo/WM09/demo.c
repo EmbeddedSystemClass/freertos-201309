@@ -15,7 +15,7 @@
 
 #include STM32_CONF_H
 
-#include "../E407/console.h"
+#include "console.h"
 #include "eui64.h"
 #include "contiki.h"
 
