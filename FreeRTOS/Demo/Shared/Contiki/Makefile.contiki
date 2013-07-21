@@ -14,7 +14,7 @@ CFLAGS += -I$(SHR_CONTIKI_DIR)
 
 # If the EUI64 is not provided, we generate it from the U_ID:
 ifdef EUI64
-CFLAGS += -DEUI64=$(EUI54)
+CFLAGS += -DEUI64=$(EUI64)
 endif
 
 CONTIKI_FLAGS = UIP_CONF_IPV6=1
