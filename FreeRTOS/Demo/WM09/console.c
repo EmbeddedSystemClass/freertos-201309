@@ -67,7 +67,7 @@ void console_init(void)
 	static NVIC_InitTypeDef nvic_init = {
 		.NVIC_IRQChannel = USART1_IRQn,
 		.NVIC_IRQChannelPreemptionPriority = 8, /* 0-15; @@@ ? */
-		.NVIC_IRQChannelSubPriority = 8,	/* 0-15; @@@ ? */
+		.NVIC_IRQChannelSubPriority = 0,	/* not on FreeRTOS */
 		.NVIC_IRQChannelCmd = ENABLE,
 	};
 

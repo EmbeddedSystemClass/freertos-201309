@@ -102,6 +102,8 @@ FreeRTOS.org versions prior to V4.4.0 did not include this definition. */
 #define portNVIC_IP_REGISTERS_OFFSET_16 	( 0xE000E3F0 )
 #define portAIRCR_REG						( * ( ( volatile unsigned long * ) 0xE000ED0C ) )
 #define portPRIORITY_GROUP_MASK				( 0x07UL << 8UL )
+#define portPRIORITY_GROUP_NO_SUBPRIO \
+    ( ( configPRIO_BITS == 8 ? 0 : 7 - configPRIO_BITS ) << 8 )
 
 /* Constants required to set up the initial stack. */
 #define portINITIAL_XPSR					( 0x01000000 )
@@ -609,7 +611,8 @@ __attribute__(( weak )) void vPortSetupTimerInterrupt( void )
 		If CMSIS libraries are being used then the correct setting can be 
 		achieved by calling	NVIC_SetPriorityGrouping( 0 ); before starting the 
 		scheduler. */
-		configASSERT( ( portAIRCR_REG & portPRIORITY_GROUP_MASK ) == 0 );
+		configASSERT( ( portAIRCR_REG & portPRIORITY_GROUP_MASK ) ==
+		    portPRIORITY_GROUP_NO_SUBPRIO );
 	}
 
 #endif /* configASSERT_DEFINED */
