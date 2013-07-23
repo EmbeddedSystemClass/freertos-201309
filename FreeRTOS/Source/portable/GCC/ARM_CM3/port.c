@@ -1,5 +1,5 @@
 /*
-    FreeRTOS V7.5.0 - Copyright (C) 2013 Real Time Engineers Ltd.
+    FreeRTOS V7.5.1 - Copyright (C) 2013 Real Time Engineers Ltd.
 
     VISIT http://www.FreeRTOS.org TO ENSURE YOU ARE USING THE LATEST VERSION.
 
@@ -256,7 +256,7 @@ portBASE_TYPE xPortStartScheduler( void )
 		Save the interrupt priority value that is about to be clobbered. */
 		ulOriginalPriority = *pcFirstUserPriorityRegister;
 
-		/* Determine the number of priority bits available.  First write to all 
+		/* Determine the number of priority bits available.  First write to all
 		possible bits. */
 		*pcFirstUserPriorityRegister = portMAX_8_BIT_VALUE;
 
@@ -265,7 +265,7 @@ portBASE_TYPE xPortStartScheduler( void )
 
 		/* Use the same mask on the maximum system call priority. */
 		ucMaxSysCallPriority = configMAX_SYSCALL_INTERRUPT_PRIORITY & ucMaxPriorityValue;
-		
+
 		/* Calculate the maximum acceptable priority group value for the number
 		of bits read back. */
 		ulMaxPRIGROUPValue = portMAX_PRIGROUP_BITS;
@@ -279,7 +279,7 @@ portBASE_TYPE xPortStartScheduler( void )
 		register. */
 		ulMaxPRIGROUPValue <<= portPRIGROUP_SHIFT;
 		ulMaxPRIGROUPValue &= portPRIORITY_GROUP_MASK;
-		
+
 		/* Restore the clobbered interrupt priority register to its original
 		value. */
 		*pcFirstUserPriorityRegister = ulOriginalPriority;
@@ -628,9 +628,12 @@ __attribute__(( weak )) void vPortSetupTimerInterrupt( void )
 		to be pre-emption priority bits.  The following assertion will fail if
 		this is not the case (if some bits represent a sub-priority).
 
-		If CMSIS libraries are being used then the correct setting can be
-		achieved by calling	NVIC_SetPriorityGrouping( 0 ); before starting the
-		scheduler. */
+		If the application only uses CMSIS libraries for interrupt
+		configuration then the correct setting can be achieved on all Cortex-M
+		devices by calling NVIC_SetPriorityGrouping( 0 ); before starting the
+		scheduler.  Note however that some vendor specific peripheral libraries
+		assume a non-zero priority group setting, in which cases using a value
+		of zero will result in unpredicable behaviour. */
 		configASSERT( ( portAIRCR_REG & portPRIORITY_GROUP_MASK ) <= ulMaxPRIGROUPValue );
 	}
 
