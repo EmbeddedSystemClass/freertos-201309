@@ -45,19 +45,6 @@ int main(void)
 
 	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_4);
 
-	/*
-	 * Furthermore, as explained at the end of
-	 * Source/portable/GCC/ARM_CM3/port.c:vPortValidateInterruptPriority
-	 * we need to do this to avoid failing the assertion.
-	 *
-	 * Actually, that explanation (which says we have to use 0) is wrong,
-	 * at least on STM32F2/4. Only the values 3 to 7 are defined. Setting
-	 * it to 3 and adapting vPortValidateInterruptPriority accordingly
-	 * makes things work as expected.
-	 */
-
-	NVIC_SetPriorityGrouping(3);
-
 //	vParTestInitialise();
 
 	console_recv = console_receive;
