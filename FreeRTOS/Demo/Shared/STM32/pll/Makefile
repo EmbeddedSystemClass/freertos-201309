@@ -8,9 +8,11 @@
 CFLAGS = -Wall -O
 LDLIBS = -lm
 
-.PHONY:	all clean
+.PHONY:	all clean spotless
 
 all:	pll
 
 clean:
+
+spotless:
 	rm -f pll
