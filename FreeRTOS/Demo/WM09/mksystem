@@ -44,5 +44,5 @@ EOF
 sed -e 's/\(#define PLL_M\).*/\1 13/' \
     -e 's/\(#define PLL_N\).*/\1 120/' \
     -e 's/\(#define PLL_P\).*/\1 2/' \
-    -e 's/\(#define PLL_Q\).*/\1 7/' \
+    -e 's/\(#define PLL_Q\).*/\1 5/' \
     "$1"
