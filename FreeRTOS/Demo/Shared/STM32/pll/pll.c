@@ -8,6 +8,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <unistd.h>
 #include <string.h>
 #include <math.h>
 
@@ -50,7 +51,7 @@ static bool valid_common(void)
 
 	/* USB 2.0, 7.1.11 "Data Signaling Rate", Full-Speed +/- 0.25% */
 
-	if (need_usb && fabs(1.0 - out.usb / 48.0) > 0.0025)
+	if (need_usb && fabs(1.0 - out.usb / (48 MHz)) > 0.0025)
 		return 0;
 
 	if (in.sys_min && out.sys < in.sys_min)
@@ -193,40 +194,48 @@ static void usage(const char *name)
 }
 
 
+static void setup(const char *family)
+{
+	if (!strcmp(family, "f2"))
+		f2_setup();
+	else if (!strcmp(family, "f4"))
+		f4_setup();
+	else {
+		fprintf(stderr, "unknown chip family \"%s\"\n", family);
+		exit(1);
+	}
+}
+
+
 int main(int argc, char **argv)
 {
-	char **arg = argv + 1;
-	int args = argc - 1;
+	int c;
 
-	if (args && !strcmp(arg[0], "-u")) {
-		need_usb = 1;
-		arg++;
-		args--;
-	}
-	if (args && *arg[0] == '-')
-		usage(*argv);
+	while ((c = getopt(argc, argv, "u")) != EOF)
+		switch (c) {
+		case 'u':
+			need_usb = 1;
+			break;
+		default:
+			usage(*argv);
+		}
 
-	switch (args) {
+	switch (argc-optind) {
 	case 4:
-		in.sys_max = atof(arg[3]) MHz;
+		in.sys_max = atof(argv[optind+3]) MHz;
 		if (in.sys_max <= 0)
 			usage(*argv);
 		/* fall through */
 	case 3:
-		in.sys_min = atof(arg[2]) MHz;
+		in.sys_min = atof(argv[optind+2]) MHz;
 		if (in.sys_min < 0)
 			usage(*argv);
 		/* fall through */
 	case 2:
-		in.src = atof(arg[1]) MHz;
+		in.src = atof(argv[optind+1]) MHz;
 		if (in.src <= 0)
 			usage(*argv);
-		if (!strcmp(arg[0], "f2"))
-			f2_setup();
-		else if (!strcmp(arg[0], "f4"))
-			f4_setup();
-		else
-			usage(*argv);
+		setup(argv[optind]);
 		break;
 	default:
 		usage(*argv);
