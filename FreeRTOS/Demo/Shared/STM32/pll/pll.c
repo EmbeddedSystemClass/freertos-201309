@@ -251,18 +251,28 @@ int main(int argc, char **argv)
 	/*
 	 * Output format is  VAR=value;  suitable for use in Bourne shell
 	 * "eval" and - to some extent - also in C.
+	 *
+	 * In order to be compatible with many languages, we don't output
+	 * comments to indicate units or to provide further information about
+	 * the values or their origin.
 	 */
 
-	printf("SRC=%.3f;\n", in.src / 1e6);
-	printf("PLLM=%u;\n", best.m);
-	printf("PLLN=%u;\n", best.n);
-	printf("P_raw=%u;\n", best.p);
-	printf("PLLP=%u;\n", 2 * (best.p + 1));
-	printf("PLLQ=%u;\n", best.q);
-	printf("VCO_in=%.3f;\n", best.vco_in / 1e6);
-	printf("VCO_out=%.3f;\n", best.vco_out / 1e6);
-	printf("SYS=%.3f;\n", best.sys / 1e6);
-	printf("USB=%.3f;\n", best.usb / 1e6);
+	printf("SRC=%.3f;\n", in.src / 1e6);	/* clock source, MHz */
+	printf("PLLM=%u;\n", best.m);		/* PLLM field */
+	printf("PLLN=%u;\n", best.n);		/* PLLN field */
+	/*
+	 * PLLP is a little weird, because the field in RCC_PLLCFGR is named
+	 * "PLLP" but the value of the PLLP parameter is not the same as the
+	 * value of the field. We therefore use "PLLP" for the parameter and
+	 * "P_field" for the actual field value.
+	 */
+	printf("P_field=%u;\n", best.p);	/* PLLP field */
+	printf("PLLP=%u;\n", 2 * (best.p + 1));	/* PLLP parameter */
+	printf("PLLQ=%u;\n", best.q);		/* PLLQ field */
+	printf("VCO_in=%.3f;\n", best.vco_in / 1e6);   /* VCO input, MHz */
+	printf("VCO_out=%.3f;\n", best.vco_out / 1e6); /* VCO output, MHz */
+	printf("SYS=%.3f;\n", best.sys / 1e6);	/* System clock, MHz */
+	printf("USB=%.3f;\n", best.usb / 1e6);	/* USB/SDIO/RNG clock, MHz */
 
 	return 0;
 }
