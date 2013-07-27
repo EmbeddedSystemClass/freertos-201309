@@ -43,11 +43,8 @@ FreeRTOSConfig.h: ../CORTEX_M4F_STM32F407ZG-SK/FreeRTOSConfig.h \
 		$(BUILD) ../Shared/newlib/mkconfig -s 1300 $< >$@ || \
 		    { rm -f $@; exit 1; }
 
-$(SYSTEM_C):	$(PATH_SYSTEM_C) mksystem
-		$(BUILD) ./mksystem $< >$@ || { rm -f $@; exit 1; }
-
 clean::
-		rm -f FreeRTOSConfig.h $(SYSTEM_C)
+		rm -f FreeRTOSConfig.h
 
 #####  Contiki  ###############################################################
 

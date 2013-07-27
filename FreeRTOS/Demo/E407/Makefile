@@ -49,7 +49,7 @@ FreeRTOSConfig.h: ../CORTEX_M4F_STM32F407ZG-SK/FreeRTOSConfig.h \
 		    { rm -f $@; exit 1; }
 
 clean::
-		rm -f FreeRTOSConfig.h $(SYSTEM_C)
+		rm -f FreeRTOSConfig.h
 
 #####  Contiki  ###############################################################
 

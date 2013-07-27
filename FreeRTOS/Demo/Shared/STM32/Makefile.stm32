@@ -244,7 +244,7 @@ MKDEP =	$(DEPEND) $< |							\
 
 clean::
 		rm -f $(OBJS) $(OBJS:.o=.d)
-		rm -f $(NAME).elf $(NAME).bin
+		rm -f $(NAME).elf $(NAME).bin $(SYSTEM_C)
 
 spotless::	clean
 		rm -rf $(DEMO_PATH)
