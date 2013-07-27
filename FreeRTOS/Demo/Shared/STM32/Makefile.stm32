@@ -24,6 +24,10 @@ ARCH = arm-none-eabi
 CC = $(ARCH)-gcc
 OBJCOPY = $(ARCH)-objcopy
 
+
+#----- Chip-specific settings -------------------------------------------------
+
+
 #
 # STM32F4xx:
 #
@@ -61,6 +65,10 @@ DRIVERS_C = $(DRIVERS:%=$(DRV_DIR)/$(CHIP_FAMILY_LC)_%.c) \
 CFLAGS += -I../../Source/portable/GCC/$(CORE_ARCH)
 SRC += ../../Source/portable/GCC/$(CORE_ARCH)/port.c
 
+
+#----- Definitions for the ST demo builder ------------------------------------
+
+
 #
 # STSW-STM32106STM32F2 and STM32F4 demonstration builder platform
 # http://www.st.com/web/catalog/tools/FM147/CL1794/SC961/SS1743/PF258142
@@ -77,6 +85,10 @@ DEMO_DIR=STM32F2-F4_Demonstration_Builder_V1.3.0
 DEMO_ZIP=stm32f2-f4_demobuild.zip
 STM_DEMO=http://www.st.com/st-web-ui/static/active/en/st_prod_software_internet/resource/technical/software/firmware/$(DEMO_ZIP)
 
+
+#----- Items we "import" ------------------------------------------------------
+
+
 #
 # Path from the platform build directories.
 #
@@ -88,6 +100,10 @@ TEMPL=$(DEMO_PATH)/Libraries/CMSIS/Device/ST/$(CHIP_FAMILY)/Source/Templates/
 PATH_STARTUP_S = $(TEMPL)/gcc_ride7/$(STARTUP_S)
 PATH_SYSTEM_C = $(TEMPL)/$(SYSTEM_C)
 PATH_LD_SCRIPT = $(DEMO_PATH)/$(LD_SCRIPT_DIR)/$(LD_SCRIPT)
+
+
+#----- General build settings -------------------------------------------------
+
 
 CFLAGS += -mthumb \
 	-D$(CHIP_FAMILY_UC) \
@@ -105,7 +121,9 @@ OBJS = $(SRC:.c=.o)
 
 .PHONY:	all dfu clean spotless
 
-# ----- Verbosity control -----------------------------------------------------
+
+#----- Verbosity control ------------------------------------------------------
+
 
 CC_normal	:= $(CC)
 CP_normal	:= cp
@@ -134,7 +152,9 @@ else
     MAKE	= +$(MAKE_quiet)
 endif
 
+
 #----- Compilation ------------------------------------------------------------
+
 
 all:		$(NAME).bin
 
@@ -156,7 +176,9 @@ $(NAME).bin:	$(NAME).elf
 $(NAME).elf:	$$(OBJS) $(PATH_STARTUP_S) $(PATH_LD_SCRIPT) Makefile
 		$(CC) $(CFLAGS) -o $@ $(OBJS) $(PATH_STARTUP_S) $(LDFLAGS)
 
+
 #----- Download and unpack the ST demo builder --------------------------------
+
 
 $(STM32_PATH)/$(DEMO_ZIP):
 		wget -O $@ $(STM_DEMO) || { rm -f $@; exit 1; }
@@ -171,12 +193,16 @@ $(DEMOBUILDER):	$(STM32_PATH)/$(DEMO_ZIP)
 
 $(OBJS) $(PATH_STARTUP_S) $(PATH_SYSTEM_C) $(PATH_LD_SCRIPT): $(DEMOBUILDER)
 
+
 #----- Flash firmware with DFU ------------------------------------------------
+
 
 dfu:		$(NAME).bin
 		dfu-util -d 0483:df11 -a 0 -s 0x8000000 -D $<
 
+
 #----- Dependencies ----------------------------------------------------------
+
 
 MKDEP =	$(DEPEND) $< |							\
 	  sed 								\
@@ -193,7 +219,9 @@ MKDEP =	$(DEPEND) $< |							\
 
 -include $(OBJS:.o=.d)
 
+
 #----- Cleanup ----------------------------------------------------------------
+
 
 clean::
 		rm -f $(OBJS) $(OBJS:.o=.d)
