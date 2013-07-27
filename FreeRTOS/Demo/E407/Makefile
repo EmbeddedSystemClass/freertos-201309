@@ -8,6 +8,7 @@
 NAME = demo
 CHIP_FAMILY = STM32F4xx
 CRYSTAL_Hz = 12000000
+PLL_ARGS = -u 12
 
 #
 # -DUSE_STDPERIPH_DRIVER: make stm32f4xx_misc.c include stm32f4xx_conf.h
@@ -46,9 +47,6 @@ FreeRTOSConfig.h: ../CORTEX_M4F_STM32F407ZG-SK/FreeRTOSConfig.h \
 		  ../Shared/newlib/mkconfig
 		$(BUILD) ../Shared/newlib/mkconfig -s 1300 $< >$@ || \
 		    { rm -f $@; exit 1; }
-
-$(SYSTEM_C):	$(PATH_SYSTEM_C) mksystem
-		$(BUILD) ./mksystem $< >$@ || { rm -f $@; exit 1; }
 
 clean::
 		rm -f FreeRTOSConfig.h $(SYSTEM_C)

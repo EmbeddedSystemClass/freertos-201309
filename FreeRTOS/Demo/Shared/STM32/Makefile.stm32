@@ -11,6 +11,8 @@
 # NAME		name of the executable
 # CHIP_FAMILY	chip family. Currently either STM32F2xx or STM32F4xx
 # SRC		C source files
+# PLL_ARGS	arguments for PLL configuration (see pll/pll.c):
+#		[-u] src_MHz [min_MHz [max_MHz]]
 #
 # Optional input variables:
 #
@@ -41,6 +43,7 @@ ifeq ($(CHIP_FAMILY),STM32F2xx)
 	LD_SCRIPT_DIR = Project/TrueSTUDIO/STM322xG-EVAL
 	CFLAGS += -mcpu=cortex-m3 -march=armv7-m
 	CORE_ARCH = ARM_CM3
+	PLL_FAMILY = f2
 else ifeq ($(CHIP_FAMILY),STM32F4xx)
 	LD_SCRIPT = STM32F407IG_FLASH.ld
 	LD_SCRIPT_DIR = Project/TrueSTUDIO/STM324xG-EVAL
@@ -48,6 +51,7 @@ else ifeq ($(CHIP_FAMILY),STM32F4xx)
 	CFLAGS += -mcpu=cortex-m4 -march=armv7e-m
 	CFLAGS += -mfloat-abi=hard -mfpu=fpv4-sp-d16
 	CORE_ARCH = ARM_CM4F
+	PLL_FAMILY = f4
 else
 $(error Please set CHIP_FAMILY to STM32F2xx or STM32F4xx)
 endif
@@ -177,6 +181,21 @@ $(NAME).elf:	$$(OBJS) $(PATH_STARTUP_S) $(PATH_LD_SCRIPT) Makefile
 		$(CC) $(CFLAGS) -o $@ $(OBJS) $(PATH_STARTUP_S) $(LDFLAGS)
 
 
+#----- Generate system_stm32f*.c with correct PLL settings --------------------
+
+
+.PHONY:		$(STM32_PATH)/pll
+
+$(STM32_PATH)/pll:
+		$(MAKE) -C $@
+
+$(SYSTEM_C):	$(PATH_SYSTEM_C) $(STM32_PATH)/mksystem $(STM32_PATH)/pll
+		$(BUILD) (cd $(STM32_PATH) && \
+		    ./mksystem $(realpath $<) $(PLL_FAMILY) $(PLL_ARGS); ) \
+		    >$@ || \
+		    { rm -f $@; exit 1; }
+
+
 #----- Download and unpack the ST demo builder --------------------------------
 
 
@@ -229,4 +248,5 @@ clean::
 
 spotless::	clean
 		rm -rf $(DEMO_PATH)
+		$(MAKE) -C pll spotless
 		@echo "Consider to  rm -f $(STM32_PATH)/$(DEMO_ZIP)"
