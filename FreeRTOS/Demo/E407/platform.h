@@ -74,12 +74,4 @@
 
 #endif /* ODEV_GPIO || ODEV_SPI */
 
-
-/* ----- Common for all forms of SPI attachment ---------------------------- */
-
-
-#define	IRQn		EXTI15_10_IRQn
-
-#define	EXTI_PortSource	EXTI_PortSourceGPIOG
-
 #endif /* !PLATFORM_H */

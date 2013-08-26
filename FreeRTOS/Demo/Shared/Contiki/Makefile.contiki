@@ -24,6 +24,7 @@ CONTIKI_FLAGS += RPL_CONF_OF=rpl_of0
 
 SRC += $(SHR_CONTIKI_DIR)/eui64.c
 SRC += $(SHR_CONTIKI_DIR)/$(HAL).c $(SHR_CONTIKI_DIR)/gpio.c
+SRC += $(SHR_CONTIKI_DIR)/extint.c
 SRC += $(SHR_CONTIKI_DIR)/$(SPI).c
 SRC += $(SHR_CONTIKI_DIR)/md5/md5.c
 

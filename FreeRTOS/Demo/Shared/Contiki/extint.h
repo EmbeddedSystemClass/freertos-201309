@@ -8,6 +8,11 @@
 #ifndef EXTINT_H
 #define	EXTINT_H
 
+#include <stdbool.h>
+
+#include STM32_CONF_H
+
+
 #define	__IRQ_0		EXTI0_IRQ
 #define	__IRQ_1		EXTI1_IRQ
 #define	__IRQ_2		EXTI2_IRQ
@@ -43,5 +48,13 @@
 #define	__IRQ_HANDLER_2(bit)	__IRQ_HANDLER_3(__IRQ_##bit)
 #define	__IRQ_HANDLER_1(bit)	__IRQ_HANDLER_2(bit)
 #define	IRQ_HANDLER(pin)	void __IRQ_HANDLER_1(BIT_##pin)(void)
+
+
+#define	EXTINT_ENABLE(pin)	extint_config(BIT_##pin, 1)
+#define	EXTINT_DISABLE(pin)	extint_config(BIT_##pin, 0)
+#define	EXTINT_SETUP(pin)	extint_setup(PORT_##pin, BIT_##pin)
+
+void extint_config(int bit, bool enable);
+void extint_setup(GPIO_TypeDef *gpio, int bit);
 
 #endif /* !EXTINT_H */

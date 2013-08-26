@@ -26,16 +26,12 @@
 #define	PIN(pin)	(GPIO_ReadInputDataBit(PORT_##pin, 1 << BIT_##pin) \
 			    == Bit_SET)
 
-#define	EXTI_PinSource_CONCAT(n)	EXTI_PinSource##n
-#define	EXTI_PinSource(n)		EXTI_PinSource_CONCAT(n)
-
-#define	EXTI_Line_CONCAT(n)		EXTI_Line##n
-#define	EXTI_Line(n)			EXTI_Line_CONCAT(n)
-
 #define	GPIO_AF_SPI(pin)		gpio_af_spi(PORT_##pin, BIT_##pin)
 #define	GPIO_ENABLE(pin)		gpio_enable(PORT_##pin, BIT_##pin)
 #define	GPIO_DISABLE(pin)		gpio_disable(PORT_##pin, BIT_##pin)
 
+
+int gpio_num(GPIO_TypeDef *gpio);
 
 void gpio_inout(GPIO_TypeDef *GPIOx, uint16_t pins, bool out);
 void gpio_af_spi(GPIO_TypeDef *gpio, int bit);

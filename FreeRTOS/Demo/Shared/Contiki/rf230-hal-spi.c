@@ -204,28 +204,15 @@ void hal_sram_write(uint8_t address, uint8_t length, uint8_t *data)
 /* ----- Interrupts -------------------------------------------------------- */
 
 
-static void exti_setup(bool enable)
-{
-	EXTI_InitTypeDef exti_init = {
-		.EXTI_Line	= EXTI_Line(BIT_IRQ),
-		.EXTI_Mode	= EXTI_Mode_Interrupt,
-		.EXTI_Trigger	= EXTI_Trigger_Rising,
-		.EXTI_LineCmd	= enable ? ENABLE : DISABLE,
-	};
-
-	EXTI_Init(&exti_init);
-}
-
-
 void hal_enable_trx_interrupt(void)
 {
-	exti_setup(1);
+	EXTINT_ENABLE(IRQ);
 }
 
 
 void hal_disable_trx_interrupt(void)
 {
-	exti_setup(0);
+	EXTINT_DISABLE(IRQ);
 }
 
 
@@ -233,7 +220,7 @@ IRQ_HANDLER(IRQ)
 {
 	uint8_t irq, state;
 
-	EXTI_ClearITPendingBit(EXTI_Line(BIT_IRQ));
+	EXTI_ClearITPendingBit(1 << BIT_IRQ);
 	irq = register_read_unsafe(RG_IRQ_STATUS);
 
 	if (!(irq & IRQ_TRX_END))
@@ -276,28 +263,15 @@ void HAL_LEAVE_CRITICAL_REGION(void)
 
 void hal_init(void)
 {
-	static NVIC_InitTypeDef nvic_init = {
-		.NVIC_IRQChannel	= IRQn,
-		.NVIC_IRQChannelPreemptionPriority = 8,	/* 0-15; @@@ ? */
-		.NVIC_IRQChannelSubPriority = 0,	/* not on FreeRTOS */
-		.NVIC_IRQChannelCmd	= ENABLE,
-	};
-
 	spi_init();
 
 	GPIO_ENABLE(SLP_TR);
-	GPIO_ENABLE(IRQ);
-
 	CLR(SLP_TR);
-
 	OUT(SLP_TR);
-	IN(IRQ);
 
 	hal_register_read(RG_IRQ_STATUS);
+	EXTINT_SETUP(IRQ);
 
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);
-	NVIC_Init(&nvic_init);
-	SYSCFG_EXTILineConfig(EXTI_PortSource, EXTI_PinSource(BIT_IRQ));
 	hal_enable_trx_interrupt();
 
 	/*

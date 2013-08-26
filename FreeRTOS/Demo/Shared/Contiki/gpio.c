@@ -96,7 +96,7 @@ void gpio_af_spi(GPIO_TypeDef *gpio, int bit)
 static int gpio_enabled[GPIO_BANKS];
 
 
-static int gpio_num(GPIO_TypeDef *gpio)
+int gpio_num(GPIO_TypeDef *gpio)
 {
 #ifdef GPIOA
 	if (gpio == GPIOA)

@@ -47,8 +47,4 @@
 #define	SPI_PRESCALER	SPI_BaudRatePrescaler_8
 			/* APB2 = 60 MHz; 60 MHz / 8 = 7.5 MHz */
 
-#define	EXTI_PortSource	EXTI_PortSourceGPIOA
-
-#define	IRQn		EXTI0_IRQn
-
 #endif /* !PLATFORM_H */
