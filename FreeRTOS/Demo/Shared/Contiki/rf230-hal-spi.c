@@ -1,5 +1,5 @@
 /*
- * hal-gpio.c - Substitute for cpu/avr/radio/rf230bb/halbb.c (atben on STM32-E407)
+ * rf230-hal-spi.c - SPI-based HAL
  *
  * Developed by Werner Almesberger for Actility S.A., and
  * licensed under LGPLv2 by Actility S.A.
@@ -31,6 +31,9 @@
 #define	IRQ_TRX_END		0x08
 
 
+/* ----- Helper macros ----------------------------------------------------- */
+
+
 #define	OUT(pin)	gpio_inout(PORT_##pin, 1 << BIT_##pin, 1)
 #define	IN(pin)		gpio_inout(PORT_##pin, 1 << BIT_##pin, 0)
 #define	SET(pin)	GPIO_SetBits(PORT_##pin, 1 << BIT_##pin)
@@ -44,6 +47,8 @@
 
 #define	EXTI_Line_CONCAT(n)		EXTI_Line##n
 #define	EXTI_Line(n)			EXTI_Line_CONCAT(n)
+
+#define	GPIO_AF_SPI(pin)		gpio_af_spi(PORT_##pin, BIT_##pin)
 
 
 /* ----- GPIO helper functions --------------------------------------------- */
@@ -60,6 +65,21 @@ static void gpio_inout(GPIO_TypeDef *GPIOx, uint16_t pins, bool out)
 	};
 
 	GPIO_Init(GPIOx, &gpio_init);
+}
+
+
+static void gpio_af_spi(GPIO_TypeDef *gpio, int bit)
+{
+	GPIO_InitTypeDef gpio_init = {
+		.GPIO_Pin	= 1 << bit,
+		.GPIO_Mode	= GPIO_Mode_AF,
+		.GPIO_Speed	= GPIO_Speed_25MHz,
+		.GPIO_OType	= GPIO_OType_PP,
+		.GPIO_PuPd	= GPIO_PuPd_DOWN,
+	};
+
+	GPIO_PinAFConfig(gpio, bit, SPI_AF);
+	GPIO_Init(gpio, &gpio_init);
 }
 
 
@@ -107,6 +127,12 @@ bool hal_get_slptr(void)
 /* ----- SPI bit-banging --------------------------------------------------- */
 
 
+static void inline delay_1us(void)
+{
+	IN(IRQ);
+}
+
+
 static void spi_begin(void)
 {
 	CLR(nSEL);
@@ -115,41 +141,55 @@ static void spi_begin(void)
 
 static void spi_end(void)
 {
+	/*
+	 * RM0090 Reference manual, 27.3.9: "[...] As a consequence, it is
+	 * mandatory to wait first until TXE=1 and then until BSY=0 after
+	 * writing the last data."
+	 */
+
+	while (SPI_I2S_GetFlagStatus(SPI_DEV, SPI_I2S_FLAG_TXE) == RESET);
+	while (SPI_I2S_GetFlagStatus(SPI_DEV, SPI_I2S_FLAG_BSY) == SET);
 	SET(nSEL);
 }
 
 
 static void spi_send(uint8_t v)
 {
-	uint8_t mask;
+	SPI_I2S_SendData(SPI_DEV, v);
+	while (SPI_I2S_GetFlagStatus(SPI_DEV, SPI_I2S_FLAG_TXE) == RESET);
+}
 
-	for (mask = 0x80; mask; mask >>= 1) {
-		if (v & mask)
-			SET(MOSI);
-		else
-			CLR(MOSI);
-		SET(SCLK);
-		SET(SCLK);
-		SET(SCLK);
-		CLR(SCLK);
-	}
+
+static void spi_begin_rx(void)
+{
+	/*
+	 * If we did a series of writes, we'll have overrun the receiver.
+	 * RM0090 section 27.3.10, "Overrun condition", claims that we need to
+	 * clear OVR in order to proceed. (Experiments suggest that it's not
+	 * necessary, but better safe than sorry.)
+	 *
+	 * We also have to discard any stale data sitting in the receiver.
+	 */
+
+	while (SPI_I2S_GetFlagStatus(SPI_DEV, SPI_I2S_FLAG_BSY) == SET);
+	(void) SPI_I2S_GetFlagStatus(SPI_DEV, SPI_I2S_FLAG_OVR);
+	(void) SPI_I2S_ReceiveData(SPI_DEV);
 }
 
 
 static uint8_t spi_recv(void)
 {
-	uint8_t res = 0;
-	uint8_t mask;
+	/*
+	 * The AT86RF231 requires a delay of 250 ns between the LSB of the
+	 * preceding byte and the MSB of a byte being received. We use 1 us
+	 * here because that's the delay a port read produces.
+	 */
 
-	for (mask = 0x80; mask; mask >>= 1) {
-		if (PIN(MISO))
-			res |= mask;
-		SET(SCLK);
-		SET(SCLK);
-		SET(SCLK);
-		CLR(SCLK);
-	}
-	return res;
+	delay_1us();
+
+	SPI_I2S_SendData(SPI_DEV, 0);
+	while (SPI_I2S_GetFlagStatus(SPI_DEV, SPI_I2S_FLAG_RXNE) == RESET);
+	return SPI_I2S_ReceiveData(SPI_DEV);
 }
 
 
@@ -162,6 +202,7 @@ static uint8_t register_read_unsafe(uint8_t address)
 
 	spi_begin();
 	spi_send(AT86RF230_REG_READ | address);
+	spi_begin_rx();
 	res = spi_recv();
 	spi_end();
 	return res;
@@ -225,6 +266,15 @@ void hal_subregister_write(uint8_t address, uint8_t mask, uint8_t position,
 /* ----- Buffer access ----------------------------------------------------- */
 
 
+/*
+ * Note that frame_read_unsafe can block for up to about 500 us.
+ *
+ * 131 Bytes * 3.6 us/Byte = 472 us
+ *
+ * The 3.6 us/Byte rate was obtained by measurement, see
+ * frtos-wpan/lab/atben-spi/spi-buf-read.png
+ */
+
 static void frame_read_unsafe(hal_rx_frame_t *rx_frame)
 {
 	uint8_t *buf = rx_frame->data;
@@ -232,6 +282,7 @@ static void frame_read_unsafe(hal_rx_frame_t *rx_frame)
 
 	spi_begin();
 	spi_send(AT86RF230_BUF_READ);
+	spi_begin_rx();
 	rx_frame->length = spi_recv();
 	if (rx_frame->length > HAL_MAX_FRAME_LENGTH)
 		rx_frame->length = HAL_MAX_FRAME_LENGTH;
@@ -250,6 +301,12 @@ void hal_frame_read(hal_rx_frame_t *rx_frame)
 	HAL_LEAVE_CRITICAL_REGION();
 }
 
+
+/*
+ * Note that hal_frame_write can block for up to about 200 us:
+ *
+ * 130 Bytes * 8 / 5.25 Mbps = 198 us
+ */
 
 void hal_frame_write(uint8_t *write_buffer, uint8_t length)
 {
@@ -354,22 +411,35 @@ void hal_init(void)
 	static NVIC_InitTypeDef nvic_init = {
 		.NVIC_IRQChannel	= IRQn,
 		.NVIC_IRQChannelPreemptionPriority = 8,	/* 0-15; @@@ ? */
-		.NVIC_IRQChannelSubPriority = 8,	/* 0-15; @@@ ? */
+		.NVIC_IRQChannelSubPriority = 0,	/* not on FreeRTOS */
 		.NVIC_IRQChannelCmd	= ENABLE,
+	};
+	static SPI_InitTypeDef spi_init = {
+		.SPI_Direction	= SPI_Direction_2Lines_FullDuplex,
+		.SPI_Mode	= SPI_Mode_Master,
+		.SPI_DataSize	= SPI_DataSize_8b,
+		.SPI_CPOL	= SPI_CPOL_Low,
+		.SPI_CPHA	= SPI_CPHA_1Edge,
+		.SPI_NSS	= SPI_NSS_Soft,
+		.SPI_BaudRatePrescaler = SPI_PRESCALER,
+		.SPI_FirstBit	= SPI_FirstBit_MSB,
 	};
 
 	enable_spi_clocks();
 
-	CLR(SCLK);
+	GPIO_AF_SPI(MOSI);
+	GPIO_AF_SPI(MISO);
+	GPIO_AF_SPI(SCLK);
+
 	SET(nSEL);
 	CLR(SLP_TR);
 
-	OUT(MOSI);
-	IN(MISO);
-	OUT(SCLK);
 	OUT(nSEL);
 	OUT(SLP_TR);
 	IN(IRQ);
+
+	SPI_Init(SPI_DEV, &spi_init);
+	SPI_Cmd(SPI_DEV, ENABLE);
 
 	hal_register_read(RG_IRQ_STATUS);
 
