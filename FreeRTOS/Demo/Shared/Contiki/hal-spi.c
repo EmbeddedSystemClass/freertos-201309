@@ -20,6 +20,8 @@
 
 #include "contiki.h"
 
+#include "platform.h"
+
 
 #define	AT86RF230_REG_READ	0x80
 #define	AT86RF230_REG_WRITE	0xc0
@@ -27,103 +29,6 @@
 #define	AT86RF230_BUF_WRITE	0x60
 
 #define	IRQ_TRX_END		0x08
-
-
-/* ----- I/O pin definitions ----------------------------------------------- */
-
-
-/*
- * SD/MMC pin	atben signal	GPIO
- *				STM32-E407+odev	WM09+dev9
- * ----------	------------	---------------	---------------
- * DAT2		IRQ		PG10		PA0
- * DAT3		nSEL		PB9		PC5
- * CMD		MOSI		PC3 / SPI2_MOSI	PA7 / SPI1_MOSI
- * CLK		SLP_TR		PB8		PA3
- * DAT0		MISO		PC2 / SPI2_MISO	PA6 / SPI1_MISO
- * DAT1		SCLK		PB10 / SPI2_SCK	PA5 / SPI1_SCK
- */
-
-
-/* ----- ODEV settings ----------------------------------------------------- */
-
-
-#ifdef ODEV
-
-#define	PORT_IRQ	GPIOG
-#define	BIT_IRQ		10
-#define	PORT_nSEL	GPIOB
-#define	BIT_nSEL	9
-#define	PORT_MOSI	GPIOC
-#define	BIT_MOSI	3
-#define	PORT_SLP_TR	GPIOB
-#define	BIT_SLP_TR	8
-#define	PORT_MISO	GPIOC
-#define	BIT_MISO	2
-#define	PORT_SCLK	GPIOB
-#define	BIT_SCLK	10
-
-#define	SPI_DEV		SPI2
-#define	SPI_AF		GPIO_AF_SPI2
-
-#define	SPI_PRESCALER	SPI_BaudRatePrescaler_8
-			/* APB1 = 42 MHz; 42 MHz / 8 = 5.25 MHz */
-
-#define	EXTI_PortSource	EXTI_PortSourceGPIOG
-
-#define	IRQn		EXTI15_10_IRQn
-#define	IRQ_HANDLER	EXTI15_10_IRQHandler
-
-
-static void enable_clocks(void)
-{
-	RCC_APB1PeriphClockCmd(RCC_APB1Periph_SPI2, ENABLE);
-	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
-	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);
-	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOG, ENABLE);
-}
-
-#endif /* ODEV */
-
-
-/* ----- DEV9 settings ----------------------------------------------------- */
-
-
-#ifdef DEV9
-
-#define	PORT_IRQ	GPIOA
-#define	BIT_IRQ		0
-#define	PORT_nSEL	GPIOC
-#define	BIT_nSEL	5
-#define	PORT_MOSI	GPIOA
-#define	BIT_MOSI	7
-#define	PORT_SLP_TR	GPIOA
-#define	BIT_SLP_TR	3
-#define	PORT_MISO	GPIOA
-#define	BIT_MISO	6
-#define	PORT_SCLK	GPIOA
-#define	BIT_SCLK	5
-
-#define	SPI_DEV		SPI1
-#define	SPI_AF		GPIO_AF_SPI1
-
-#define	SPI_PRESCALER	SPI_BaudRatePrescaler_8
-			/* APB2 = 60 MHz; 60 MHz / 8 = 7.5 MHz */
-
-#define	EXTI_PortSource	EXTI_PortSourceGPIOA
-
-#define	IRQn		EXTI0_IRQn
-#define	IRQ_HANDLER	EXTI0_IRQHandler
-
-
-static void enable_clocks(void)
-{
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_SPI1, ENABLE);
-	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
-	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);
-}
-
-#endif /* DEV9 */
 
 
 /* ----- Helper macros ----------------------------------------------------- */
@@ -520,7 +425,7 @@ void hal_init(void)
 		.SPI_FirstBit	= SPI_FirstBit_MSB,
 	};
 
-	enable_clocks();
+	enable_spi_clocks();
 
 	GPIO_AF_SPI(MOSI);
 	GPIO_AF_SPI(MISO);
