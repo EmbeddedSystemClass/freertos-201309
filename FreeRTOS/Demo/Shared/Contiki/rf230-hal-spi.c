@@ -22,21 +22,7 @@
 
 #include "platform.h"
 #include "gpio.h"
-
-
-#define	AT86RF230_REG_READ	0x80
-#define	AT86RF230_REG_WRITE	0xc0
-#define	AT86RF230_BUF_READ	0x20
-#define	AT86RF230_BUF_WRITE	0x60
-
-#define	IRQ_TRX_END		0x08
-
-
-/* ----- Items shared with rf230bb ----------------------------------------- */
-
-
-extern hal_rx_frame_t rxframe[RF230_CONF_RX_BUFFERS];
-extern uint8_t rxframe_head, rxframe_tail;
+#include "rf230bb.h"
 
 
 /* ----- Control signals --------------------------------------------------- */
