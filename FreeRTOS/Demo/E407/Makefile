@@ -58,12 +58,12 @@ clean::
 #
 # CFLAGS	HAL		Description
 # -------------	---------------	-----------------------------------------------
-# (none)	hal-gpio	Olimex STM32-E407, atben in uS slot
-# -DODEV	hal-gpio	Olimex STM32-E407, atben on ODEV, bit-banging
-# -DODEV	hal-spi		Olimex STM32-E407, atben on ODEV, SPI device
+# (none)	hal-gpio	Olimex STM32-E407, atben in uSD slot
+# -DODEV_GPIO	hal-gpio	Olimex STM32-E407, atben on ODEV, bit-banging
+# -DODEV_SPI	hal-spi		Olimex STM32-E407, atben on ODEV, SPI device
 #
 
-CFLAGS += -DODEV
+CFLAGS += -DODEV_SPI
 HAL = hal-spi
 
 EUI64 = 0xa0,0,0,0,0,0,0,3

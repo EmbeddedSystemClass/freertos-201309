@@ -20,6 +20,8 @@
 
 #include "contiki.h"
 
+#include "platform.h"
+
 
 #define	AT86RF230_REG_READ	0x80
 #define	AT86RF230_REG_WRITE	0xc0
@@ -28,53 +30,6 @@
 
 #define	IRQ_TRX_END		0x08
 
-
-/* ----- I/O pin definitions ----------------------------------------------- */
-
-
-/*
- * SD/MMC pin	atben signal	GPIO (Olimex STM32-E407)
- *				uSD	odev
- * ----------	------------	----	----
- * DAT2		IRQ		PC10	PG10
- * DAT3		nSEL		PC11	PB9
- * CMD		MOSI		PD2	PC3
- * CLK		SLP_TR		PC12	PB8
- * DAT0		MISO		PC8	PC2
- * DAT1		SCLK		PC9	PB10
- */
-
-#ifndef ODEV
-
-#define	PORT_IRQ	GPIOC
-#define	BIT_IRQ		10
-#define	PORT_nSEL	GPIOC
-#define	BIT_nSEL	11
-#define	PORT_MOSI	GPIOD
-#define	BIT_MOSI	2
-#define	PORT_SLP_TR	GPIOC
-#define	BIT_SLP_TR	12
-#define	PORT_MISO	GPIOC
-#define	BIT_MISO	8
-#define	PORT_SCLK	GPIOC
-#define	BIT_SCLK	9
-
-#else /* ODEV */
-
-#define	PORT_IRQ	GPIOG
-#define	BIT_IRQ		10
-#define	PORT_nSEL	GPIOB
-#define	BIT_nSEL	9
-#define	PORT_MOSI	GPIOC
-#define	BIT_MOSI	3
-#define	PORT_SLP_TR	GPIOB
-#define	BIT_SLP_TR	8
-#define	PORT_MISO	GPIOC
-#define	BIT_MISO	2
-#define	PORT_SCLK	GPIOB
-#define	BIT_SCLK	10
-
-#endif /* ODEV */
 
 #define	OUT(pin)	gpio_inout(PORT_##pin, 1 << BIT_##pin, 1)
 #define	IN(pin)		gpio_inout(PORT_##pin, 1 << BIT_##pin, 0)
@@ -349,7 +304,7 @@ void hal_disable_trx_interrupt(void)
 }
 
 
-void EXTI15_10_IRQHandler(void)
+void IRQ_HANDLER(void)
 {
 	uint8_t irq, state;
 
@@ -397,20 +352,13 @@ void HAL_LEAVE_CRITICAL_REGION(void)
 void hal_init(void)
 {
 	static NVIC_InitTypeDef nvic_init = {
-		.NVIC_IRQChannel	= EXTI15_10_IRQn,
+		.NVIC_IRQChannel	= IRQn,
 		.NVIC_IRQChannelPreemptionPriority = 8,	/* 0-15; @@@ ? */
 		.NVIC_IRQChannelSubPriority = 8,	/* 0-15; @@@ ? */
 		.NVIC_IRQChannelCmd	= ENABLE,
 	};
 
-#ifndef ODEV
-	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);
-	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOD, ENABLE);
-#else /* ODEV */
-	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
-	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);
-	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOG, ENABLE);
-#endif /* ODEV */
+	enable_spi_clocks();
 
 	CLR(SCLK);
 	SET(nSEL);
@@ -427,13 +375,7 @@ void hal_init(void)
 
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);
 	NVIC_Init(&nvic_init);
-#ifndef ODEV
-	SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOC, /* PORT_IRQ */
-	    EXTI_PinSource(BIT_IRQ));
-#else /* ODEV */
-	SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOG, /* PORT_IRQ */
-	    EXTI_PinSource(BIT_IRQ));
-#endif /* ODEV */
+	SYSCFG_EXTILineConfig(EXTI_PortSource, EXTI_PinSource(BIT_IRQ));
 	hal_enable_trx_interrupt();
 
 	/*
