@@ -23,6 +23,7 @@
 
 #include "platform.h"
 #include "gpio.h"
+#include "spi.h"
 #include "rf230bb.h"
 
 
@@ -57,55 +58,6 @@ void hal_set_slptr_low(void)
 bool hal_get_slptr(void)
 {
 	return PIN(SLP_TR);
-}
-
-
-/* ----- SPI bit-banging --------------------------------------------------- */
-
-
-static void spi_begin(void)
-{
-	CLR(nSEL);
-}
-
-
-static void spi_end(void)
-{
-	SET(nSEL);
-}
-
-
-static void spi_send(uint8_t v)
-{
-	uint8_t mask;
-
-	for (mask = 0x80; mask; mask >>= 1) {
-		if (v & mask)
-			SET(MOSI);
-		else
-			CLR(MOSI);
-		SET(SCLK);
-		SET(SCLK);
-		SET(SCLK);
-		CLR(SCLK);
-	}
-}
-
-
-static uint8_t spi_recv(void)
-{
-	uint8_t res = 0;
-	uint8_t mask;
-
-	for (mask = 0x80; mask; mask >>= 1) {
-		if (PIN(MISO))
-			res |= mask;
-		SET(SCLK);
-		SET(SCLK);
-		SET(SCLK);
-		CLR(SCLK);
-	}
-	return res;
 }
 
 
@@ -315,15 +267,10 @@ void hal_init(void)
 	};
 
 	enable_spi_clocks();
+	spi_init();
 
-	CLR(SCLK);
-	SET(nSEL);
 	CLR(SLP_TR);
 
-	OUT(MOSI);
-	IN(MISO);
-	OUT(SCLK);
-	OUT(nSEL);
 	OUT(SLP_TR);
 	IN(IRQ);
 
