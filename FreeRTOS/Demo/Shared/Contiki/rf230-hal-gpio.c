@@ -269,6 +269,9 @@ void hal_init(void)
 	enable_spi_clocks();
 	spi_init();
 
+	GPIO_ENABLE(SLP_TR);
+	GPIO_ENABLE(IRQ);
+
 	CLR(SLP_TR);
 
 	OUT(SLP_TR);
