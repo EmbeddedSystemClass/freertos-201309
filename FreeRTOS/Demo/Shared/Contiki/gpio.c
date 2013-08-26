@@ -15,18 +15,44 @@
 #include "gpio.h"
 
 
-#define	GPIO_BANKS	9	/* A through I */
+/* ----- RCC_AHB1Periph_GPIOx value (by GPIO bank index) ------------------- */
+
+
+#define	GPIO_BANKS	(sizeof(gpio_rcc) / sizeof(*gpio_rcc))
 
 
 static const uint32_t gpio_rcc[] = {
-	RCC_AHB1Periph_GPIOA,	RCC_AHB1Periph_GPIOB,	RCC_AHB1Periph_GPIOC,
-	RCC_AHB1Periph_GPIOD,	RCC_AHB1Periph_GPIOE,	RCC_AHB1Periph_GPIOF,
-	RCC_AHB1Periph_GPIOG,	RCC_AHB1Periph_GPIOH,	RCC_AHB1Periph_GPIOI,
+#ifdef GPIOA
+	RCC_AHB1Periph_GPIOA,
+#endif
+#ifdef GPIOB
+	RCC_AHB1Periph_GPIOB,
+#endif
+#ifdef GPIOC
+	RCC_AHB1Periph_GPIOC,
+#endif
+#ifdef GPIOD
+	RCC_AHB1Periph_GPIOD,
+#endif
+#ifdef GPIOE
+	RCC_AHB1Periph_GPIOE,
+#endif
+#ifdef GPIOF
+	RCC_AHB1Periph_GPIOF,
+#endif
+#ifdef GPIOG
+	RCC_AHB1Periph_GPIOG,
+#endif
+#ifdef GPIOH
+	RCC_AHB1Periph_GPIOH,
+#endif
+#ifdef GPIOI
+	RCC_AHB1Periph_GPIOI,
+#endif
 };
 
-/* Number of uses of a GPIO bank. 0 if disabled.  */
 
-static int gpio_enabled[GPIO_BANKS];
+/* ----- In/out/function configuration ------------------------------------- */
 
 
 void gpio_inout(GPIO_TypeDef *GPIOx, uint16_t pins, bool out)
@@ -62,26 +88,52 @@ void gpio_af_spi(GPIO_TypeDef *gpio, int bit)
 #endif /* SPI_AF */
 
 
+/* ----- GPIO enable/disable ----------------------------------------------- */
+
+
+/* Number of uses of a GPIO bank. 0 if disabled.  */
+
+static int gpio_enabled[GPIO_BANKS];
+
+
 static int gpio_num(GPIO_TypeDef *gpio)
 {
+#ifdef GPIOA
 	if (gpio == GPIOA)
 		return 0;
+#endif
+#ifdef GPIOB
 	if (gpio == GPIOB)
 		return 1;
+#endif
+#ifdef GPIOC
 	if (gpio == GPIOC)
 		return 2;
+#endif
+#ifdef GPIOD
 	if (gpio == GPIOD)
 		return 3;
+#endif
+#ifdef GPIOE
 	if (gpio == GPIOE)
 		return 4;
+#endif
+#ifdef GPIOF
 	if (gpio == GPIOF)
 		return 5;
+#endif
+#ifdef GPIOG
 	if (gpio == GPIOG)
 		return 6;
+#endif
+#ifdef GPIOH
 	if (gpio == GPIOH)
 		return 7;
+#endif
+#ifdef GPIOI
 	if (gpio == GPIOI)
 		return 8;
+#endif
 	return -1;
 }
 
