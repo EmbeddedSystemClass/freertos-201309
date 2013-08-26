@@ -67,6 +67,11 @@ uint8_t spi_recv(void)
 
 void spi_init(void)
 {
+	GPIO_ENABLE(MOSI);
+	GPIO_ENABLE(MISO);
+	GPIO_ENABLE(SCLK);
+	GPIO_ENABLE(nSEL);
+
 	CLR(SCLK);
 	SET(nSEL);
 

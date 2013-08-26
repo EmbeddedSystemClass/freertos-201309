@@ -48,8 +48,6 @@
 
 static inline void enable_spi_clocks(void)
 {
-	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);
-	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOD, ENABLE);
 }
 
 #endif /* !ODEV_GPIO && !ODEV_SPI */
@@ -85,9 +83,6 @@ static inline void enable_spi_clocks(void)
 #ifdef ODEV_SPI
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_SPI2, ENABLE);
 #endif
-	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
-	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);
-	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOG, ENABLE);
 }
 
 #endif /* ODEV_GPIO || ODEV_SPI */

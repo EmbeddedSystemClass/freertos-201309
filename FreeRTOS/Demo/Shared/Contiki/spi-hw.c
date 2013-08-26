@@ -95,6 +95,11 @@ void spi_init(void)
 		.SPI_FirstBit	= SPI_FirstBit_MSB,
 	};
 
+	GPIO_ENABLE(MOSI);
+	GPIO_ENABLE(MISO);
+	GPIO_ENABLE(SCLK);
+	GPIO_ENABLE(nSEL);
+
 	GPIO_AF_SPI(MOSI);
 	GPIO_AF_SPI(MISO);
 	GPIO_AF_SPI(SCLK);
