@@ -80,9 +80,6 @@ static inline void enable_spi_clocks(void)
 
 static inline void enable_spi_clocks(void)
 {
-#ifdef ODEV_SPI
-	RCC_APB1PeriphClockCmd(RCC_APB1Periph_SPI2, ENABLE);
-#endif
 }
 
 #endif /* ODEV_GPIO || ODEV_SPI */

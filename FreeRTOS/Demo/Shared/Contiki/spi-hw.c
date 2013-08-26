@@ -16,6 +16,62 @@
 #include "platform.h"
 
 
+/* ----- RCC_APBxPeriphClockCmd function (by SPI device index) ------------- */
+
+
+typedef void (*spi_rcc_fnp)(uint32_t RCC_APB2Periph, FunctionalState NewState);
+
+
+static spi_rcc_fnp spi_rcc_fn[] = {
+#ifdef SPI1
+	RCC_APB2PeriphClockCmd,
+#endif
+#ifdef SPI2
+	RCC_APB1PeriphClockCmd,
+#endif
+#ifdef SPI3
+	RCC_APB1PeriphClockCmd,
+#endif
+#ifdef SPI4
+	RCC_APB2PeriphClockCmd,
+#endif
+#ifdef SPI5
+	RCC_APB2PeriphClockCmd,
+#endif
+#ifdef SPI6
+	RCC_APB2PeriphClockCmd,
+#endif
+};
+
+
+/* ----- RCC_APB2Periph_SPIx value (by SPI device index) ------------------- */
+
+
+static const uint32_t spi_rcc[] = {
+#ifdef SPI1
+	RCC_APB2Periph_SPI1,
+#endif
+#ifdef SPI2
+	RCC_APB1Periph_SPI2,
+#endif
+#ifdef SPI3
+	RCC_APB1Periph_SPI3,
+#endif
+#ifdef SPI4
+	RCC_APB2Periph_SPI4,
+#endif
+#ifdef SPI5
+	RCC_APB2Periph_SPI5,
+#endif
+#ifdef SPI6
+	RCC_APB2Periph_SPI6,
+#endif
+};
+
+
+/* ----- SPI communication ------------------------------------------------- */
+
+
 static void inline delay_1us(void)
 {
 	IN(MISO);
@@ -82,6 +138,39 @@ uint8_t spi_recv(void)
 }
 
 
+/* ----- Initialization ---------------------------------------------------- */
+
+
+static int spi_to_num(SPI_TypeDef *spi)
+{
+#ifdef SPI1
+	if (spi == SPI1)
+		return 0;
+#endif
+#ifdef SPI2
+	if (spi == SPI2)
+		return 1;
+#endif
+#ifdef SPI3
+	if (spi == SPI3)
+		return 2;
+#endif
+#ifdef SPI4
+	if (spi == SPI4)
+		return 3;
+#endif
+#ifdef SPI5
+	if (spi == SPI5)
+		return 4;
+#endif
+#ifdef SPI6
+	if (spi == SPI6)
+		return 5;
+#endif
+	return -1;
+}
+
+
 void spi_init(void)
 {
 	static SPI_InitTypeDef spi_init = {
@@ -94,6 +183,7 @@ void spi_init(void)
 		.SPI_BaudRatePrescaler = SPI_PRESCALER,
 		.SPI_FirstBit	= SPI_FirstBit_MSB,
 	};
+	int n;
 
 	GPIO_ENABLE(MOSI);
 	GPIO_ENABLE(MISO);
@@ -107,6 +197,9 @@ void spi_init(void)
 	SET(nSEL);
 
 	OUT(nSEL);
+
+	n = spi_to_num(SPI_DEV);
+	spi_rcc_fn[n](spi_rcc[n], ENABLE);
 
 	SPI_Init(SPI_DEV, &spi_init);
 	SPI_Cmd(SPI_DEV, ENABLE);

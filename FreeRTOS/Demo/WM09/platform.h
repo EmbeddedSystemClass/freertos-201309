@@ -55,7 +55,6 @@
 
 static inline void enable_spi_clocks(void)
 {
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_SPI1, ENABLE);
 }
 
 #endif /* !PLATFORM_H */
