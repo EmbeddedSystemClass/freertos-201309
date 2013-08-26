@@ -50,6 +50,5 @@
 #define	EXTI_PortSource	EXTI_PortSourceGPIOA
 
 #define	IRQn		EXTI0_IRQn
-#define	IRQ_HANDLER	EXTI0_IRQHandler
 
 #endif /* !PLATFORM_H */

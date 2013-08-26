@@ -22,6 +22,7 @@
 
 #include "platform.h"
 #include "gpio.h"
+#include "extint.h"
 #include "spi.h"
 #include "rf230bb.h"
 
@@ -228,7 +229,7 @@ void hal_disable_trx_interrupt(void)
 }
 
 
-void IRQ_HANDLER(void)
+IRQ_HANDLER(IRQ)
 {
 	uint8_t irq, state;
 

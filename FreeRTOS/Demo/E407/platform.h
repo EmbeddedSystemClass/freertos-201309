@@ -79,7 +79,6 @@
 
 
 #define	IRQn		EXTI15_10_IRQn
-#define	IRQ_HANDLER	EXTI15_10_IRQHandler
 
 #define	EXTI_PortSource	EXTI_PortSourceGPIOG
 
