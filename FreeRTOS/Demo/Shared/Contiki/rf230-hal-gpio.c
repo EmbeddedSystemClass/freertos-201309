@@ -22,6 +22,7 @@
 #include "contiki.h"
 
 #include "platform.h"
+#include "gpio.h"
 
 
 #define	AT86RF230_REG_READ	0x80
@@ -30,38 +31,6 @@
 #define	AT86RF230_BUF_WRITE	0x60
 
 #define	IRQ_TRX_END		0x08
-
-
-#define	OUT(pin)	gpio_inout(PORT_##pin, 1 << BIT_##pin, 1)
-#define	IN(pin)		gpio_inout(PORT_##pin, 1 << BIT_##pin, 0)
-#define	SET(pin)	GPIO_SetBits(PORT_##pin, 1 << BIT_##pin)
-#define	CLR(pin)	GPIO_ResetBits(PORT_##pin, 1 << BIT_##pin)
-
-#define	PIN(pin)	(GPIO_ReadInputDataBit(PORT_##pin, 1 << BIT_##pin) \
-			    == Bit_SET)
-
-#define	EXTI_PinSource_CONCAT(n)	EXTI_PinSource##n
-#define	EXTI_PinSource(n)		EXTI_PinSource_CONCAT(n)
-
-#define	EXTI_Line_CONCAT(n)		EXTI_Line##n
-#define	EXTI_Line(n)			EXTI_Line_CONCAT(n)
-
-
-/* ----- GPIO helper functions --------------------------------------------- */
-
-
-static void gpio_inout(GPIO_TypeDef *GPIOx, uint16_t pins, bool out)
-{
-	GPIO_InitTypeDef gpio_init = {
-		.GPIO_Pin       = pins,
-		.GPIO_Mode      = out ? GPIO_Mode_OUT : GPIO_Mode_IN,
-		.GPIO_Speed     = GPIO_Speed_25MHz,
-		.GPIO_OType     = GPIO_OType_PP,
-		.GPIO_PuPd      = GPIO_PuPd_NOPULL,
-	};
-
-	GPIO_Init(GPIOx, &gpio_init);
-}
 
 
 /* ----- Items shared with rf230bb ----------------------------------------- */

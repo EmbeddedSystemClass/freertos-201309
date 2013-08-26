@@ -22,7 +22,8 @@ CONTIKI_FLAGS += RF_CHANNEL=$(RF_CHANNEL) PAN_ADDR=$(PAN_ADDR)
 CONTIKI_FLAGS += SHORT_ADDR=$(SHORT_ADDR)
 CONTIKI_FLAGS += RPL_CONF_OF=rpl_of0
 
-SRC += $(SHR_CONTIKI_DIR)/eui64.c $(SHR_CONTIKI_DIR)/$(HAL).c
+SRC += $(SHR_CONTIKI_DIR)/eui64.c
+SRC += $(SHR_CONTIKI_DIR)/$(HAL).c $(SHR_CONTIKI_DIR)/gpio.c
 SRC += $(SHR_CONTIKI_DIR)/md5/md5.c
 
 #####  Items for subordinate Contiki  #########################################
