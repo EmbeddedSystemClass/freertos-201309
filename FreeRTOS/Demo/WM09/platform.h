@@ -52,9 +52,4 @@
 #define	IRQn		EXTI0_IRQn
 #define	IRQ_HANDLER	EXTI0_IRQHandler
 
-
-static inline void enable_spi_clocks(void)
-{
-}
-
 #endif /* !PLATFORM_H */

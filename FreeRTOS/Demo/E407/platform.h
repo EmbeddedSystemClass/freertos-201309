@@ -45,11 +45,6 @@
 #define	PORT_SCLK	GPIOC
 #define	BIT_SCLK	9
 
-
-static inline void enable_spi_clocks(void)
-{
-}
-
 #endif /* !ODEV_GPIO && !ODEV_SPI */
 
 
@@ -76,11 +71,6 @@ static inline void enable_spi_clocks(void)
 
 #define	SPI_PRESCALER	SPI_BaudRatePrescaler_8
 			/* APB1 = 42 MHz; 42 MHz / 8 = 5.25 MHz */
-
-
-static inline void enable_spi_clocks(void)
-{
-}
 
 #endif /* ODEV_GPIO || ODEV_SPI */
 

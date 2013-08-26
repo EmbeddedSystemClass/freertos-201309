@@ -266,7 +266,6 @@ void hal_init(void)
 		.NVIC_IRQChannelCmd	= ENABLE,
 	};
 
-	enable_spi_clocks();
 	spi_init();
 
 	GPIO_ENABLE(SLP_TR);
