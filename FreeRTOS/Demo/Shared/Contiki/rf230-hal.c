@@ -1,6 +1,5 @@
 /*
- * rf230-hal-gpio.c - Substitute for cpu/avr/radio/rf230bb/halbb.c
- *		      (atben on STM32-E407)
+ * rf230-hal.c - Substitute for cpu/avr/radio/rf230bb/halbb.c
  *
  * Developed by Werner Almesberger for Actility S.A., and
  * licensed under LGPLv2 by Actility S.A.
@@ -71,6 +70,7 @@ static uint8_t register_read_unsafe(uint8_t address)
 
 	spi_begin();
 	spi_send(AT86RF230_REG_READ | address);
+	spi_begin_rx();
 	res = spi_recv();
 	spi_end();
 	return res;
@@ -134,6 +134,15 @@ void hal_subregister_write(uint8_t address, uint8_t mask, uint8_t position,
 /* ----- Buffer access ----------------------------------------------------- */
 
 
+/*
+ * Note that frame_read_unsafe can block for up to about 500 us.
+ *
+ * 131 Bytes * 3.6 us/Byte = 472 us
+ *
+ * The 3.6 us/Byte rate was obtained by measurement, see
+ * frtos-wpan/lab/atben-spi/spi-buf-read.png
+ */
+
 static void frame_read_unsafe(hal_rx_frame_t *rx_frame)
 {
 	uint8_t *buf = rx_frame->data;
@@ -141,6 +150,7 @@ static void frame_read_unsafe(hal_rx_frame_t *rx_frame)
 
 	spi_begin();
 	spi_send(AT86RF230_BUF_READ);
+	spi_begin_rx();
 	rx_frame->length = spi_recv();
 	if (rx_frame->length > HAL_MAX_FRAME_LENGTH)
 		rx_frame->length = HAL_MAX_FRAME_LENGTH;
@@ -159,6 +169,12 @@ void hal_frame_read(hal_rx_frame_t *rx_frame)
 	HAL_LEAVE_CRITICAL_REGION();
 }
 
+
+/*
+ * Note that hal_frame_write can block for up to about 200 us:
+ *
+ * 130 Bytes * 8 / 5.25 Mbps = 198 us
+ */
 
 void hal_frame_write(uint8_t *write_buffer, uint8_t length)
 {

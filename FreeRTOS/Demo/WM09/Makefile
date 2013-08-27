@@ -53,11 +53,11 @@ clean::
 #
 # CFLAGS	HAL		SPI	Description
 # -------------	---------------	-------	---------------------------------------
-# -DDEV9	rf230-hal-spi	spi-hw	USI WM-N-BM-09 EVB, atben on DEV9, SPI device
+# -DDEV9	rf230-hal	spi-hw	USI WM-N-BM-09 EVB, atben on DEV9, SPI device
 #
 
 CFLAGS += -DDEV9
-HAL = rf230-hal-spi
+HAL = rf230-hal
 SPI = spi-hw
 
 EUI64 = 0xa0,0,0,0,0,0,0,3
