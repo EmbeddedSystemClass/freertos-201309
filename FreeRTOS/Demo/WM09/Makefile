@@ -54,6 +54,7 @@ clean::
 # HAL		SPI	Description
 # -------------	-------	-------------------------------------------------------
 # rf230-hal	spi-hw	USI WM-N-BM-09 EVB, atben on DEV9, SPI device
+# rf230-hal	spi-gpio USI WM-N-BM-09 EVB, atben on DEV9, bit-banging
 #
 
 HAL = rf230-hal
