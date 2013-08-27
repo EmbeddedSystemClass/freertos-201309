@@ -9,74 +9,69 @@
 #include <stdint.h>
 
 #include "gpio.h"
-#include "spi.h"
+#include "spi-gpio.h"
 
 #include "platform.h"
 
 
-void spi_begin(void)
+void spi_begin(const struct spi *spi)
 {
-	CLR(nSEL);
+	CLR(spi->nsel);
 }
 
 
-void spi_end(void)
+void spi_end(const struct spi *spi)
 {
-	SET(nSEL);
+	SET(spi->nsel);
 }
 
 
-void spi_send(uint8_t v)
+void spi_send(const struct spi *spi, uint8_t v)
 {
 	uint8_t mask;
 
 	for (mask = 0x80; mask; mask >>= 1) {
 		if (v & mask)
-			SET(MOSI);
+			SET(spi->mosi);
 		else
-			CLR(MOSI);
-		SET(SCLK);
-		SET(SCLK);
-		SET(SCLK);
-		CLR(SCLK);
+			CLR(spi->mosi);
+		SET(spi->sclk);
+		SET(spi->sclk);
+		SET(spi->sclk);
+		CLR(spi->sclk);
 	}
 }
 
 
-void spi_begin_rx(void)
+void spi_begin_rx(const struct spi *spi)
 {
 }
 
 
-uint8_t spi_recv(void)
+uint8_t spi_recv(const struct spi *spi)
 {
 	uint8_t res = 0;
 	uint8_t mask;
 
 	for (mask = 0x80; mask; mask >>= 1) {
-		if (PIN(MISO))
+		if (PIN(spi->miso))
 			res |= mask;
-		SET(SCLK);
-		SET(SCLK);
-		SET(SCLK);
-		CLR(SCLK);
+		SET(spi->sclk);
+		SET(spi->sclk);
+		SET(spi->sclk);
+		CLR(spi->sclk);
 	}
 	return res;
 }
 
 
-void spi_init(void)
+void spi_init(const struct spi *spi)
 {
-	GPIO_ENABLE(MOSI);
-	GPIO_ENABLE(MISO);
-	GPIO_ENABLE(SCLK);
-	GPIO_ENABLE(nSEL);
+	CLR(spi->sclk);
+	SET(spi->nsel);
 
-	CLR(SCLK);
-	SET(nSEL);
-
-	OUT(MOSI);
-	IN(MISO);
-	OUT(SCLK);
-	OUT(nSEL);
+	OUT(spi->mosi);
+	IN(spi->miso);
+	OUT(spi->sclk);
+	OUT(spi->nsel);
 }

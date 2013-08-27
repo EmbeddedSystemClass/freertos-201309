@@ -1,5 +1,5 @@
 /*
- * rf230-hal-spi.c - SPI-based HAL
+ * rf230-hal.c - Substitute for cpu/avr/radio/rf230bb/halbb.c
  *
  * Developed by Werner Almesberger for Actility S.A., and
  * licensed under LGPLv2 by Actility S.A.
@@ -22,8 +22,30 @@
 
 #include "platform.h"
 #include "gpio.h"
+#include "extint.h"
 #include "spi.h"
-#include "rf230bb.h"
+
+
+static struct spi spi;
+static unsigned slp_tr;
+
+
+/* ----- Transceiver commands and bits ------------------------------------- */
+
+
+#define	AT86RF230_REG_READ	0x80
+#define	AT86RF230_REG_WRITE	0xc0
+#define	AT86RF230_BUF_READ	0x20
+#define	AT86RF230_BUF_WRITE	0x60
+
+#define	IRQ_TRX_END		0x08
+
+
+/* ----- Items shared with rf230bb ----------------------------------------- */
+
+
+extern hal_rx_frame_t rxframe[RF230_CONF_RX_BUFFERS];
+extern uint8_t rxframe_head, rxframe_tail;
 
 
 /* ----- Control signals --------------------------------------------------- */
@@ -44,19 +66,19 @@ void hal_set_rst_high(void)
 
 void hal_set_slptr_high(void)
 {
-	SET(SLP_TR);
+	SET(slp_tr);
 }
 
 
 void hal_set_slptr_low(void)
 {
-	CLR(SLP_TR);
+	CLR(slp_tr);
 }
 
 
 bool hal_get_slptr(void)
 {
-	return PIN(SLP_TR);
+	return PIN(slp_tr);
 }
 
 
@@ -67,11 +89,11 @@ static uint8_t register_read_unsafe(uint8_t address)
 {
 	uint8_t res;
 
-	spi_begin();
-	spi_send(AT86RF230_REG_READ | address);
-	spi_begin_rx();
-	res = spi_recv();
-	spi_end();
+	spi_begin(&spi);
+	spi_send(&spi, AT86RF230_REG_READ | address);
+	spi_begin_rx(&spi);
+	res = spi_recv(&spi);
+	spi_end(&spi);
 	return res;
 }
 
@@ -89,10 +111,10 @@ uint8_t hal_register_read(uint8_t address)
 
 static void register_write_unsafe(uint8_t address, uint8_t value)
 {
-	spi_begin();
-	spi_send(AT86RF230_REG_WRITE | address);
-	spi_send(value);
-	spi_end();
+	spi_begin(&spi);
+	spi_send(&spi, AT86RF230_REG_WRITE | address);
+	spi_send(&spi, value);
+	spi_end(&spi);
 }
 
 
@@ -147,16 +169,16 @@ static void frame_read_unsafe(hal_rx_frame_t *rx_frame)
 	uint8_t *buf = rx_frame->data;
 	uint8_t i;
 
-	spi_begin();
-	spi_send(AT86RF230_BUF_READ);
-	spi_begin_rx();
-	rx_frame->length = spi_recv();
+	spi_begin(&spi);
+	spi_send(&spi, AT86RF230_BUF_READ);
+	spi_begin_rx(&spi);
+	rx_frame->length = spi_recv(&spi);
 	if (rx_frame->length > HAL_MAX_FRAME_LENGTH)
 		rx_frame->length = HAL_MAX_FRAME_LENGTH;
 	for (i = 0; i != rx_frame->length; i++)
-		*(uint8_t *) buf++ = spi_recv();
-	rx_frame->lqi = spi_recv();
-        spi_end();
+		*(uint8_t *) buf++ = spi_recv(&spi);
+	rx_frame->lqi = spi_recv(&spi);
+        spi_end(&spi);
 	rx_frame->crc = true;	/* checked by hardware */
 }
 
@@ -178,12 +200,12 @@ void hal_frame_read(hal_rx_frame_t *rx_frame)
 void hal_frame_write(uint8_t *write_buffer, uint8_t length)
 {
 	HAL_ENTER_CRITICAL_REGION();
-	spi_begin();
-	spi_send(AT86RF230_BUF_WRITE);
-	spi_send(length);
+	spi_begin(&spi);
+	spi_send(&spi, AT86RF230_BUF_WRITE);
+	spi_send(&spi, length);
 	while (length--)
-		spi_send(*(uint8_t *) write_buffer++);
-	spi_end();
+		spi_send(&spi, *(uint8_t *) write_buffer++);
+	spi_end(&spi);
 	HAL_LEAVE_CRITICAL_REGION();
 }
 
@@ -203,36 +225,23 @@ void hal_sram_write(uint8_t address, uint8_t length, uint8_t *data)
 /* ----- Interrupts -------------------------------------------------------- */
 
 
-static void exti_setup(bool enable)
-{
-	EXTI_InitTypeDef exti_init = {
-		.EXTI_Line	= EXTI_Line(BIT_IRQ),
-		.EXTI_Mode	= EXTI_Mode_Interrupt,
-		.EXTI_Trigger	= EXTI_Trigger_Rising,
-		.EXTI_LineCmd	= enable ? ENABLE : DISABLE,
-	};
-
-	EXTI_Init(&exti_init);
-}
-
-
 void hal_enable_trx_interrupt(void)
 {
-	exti_setup(1);
+	EXTINT_ENABLE(IRQ);
 }
 
 
 void hal_disable_trx_interrupt(void)
 {
-	exti_setup(0);
+	EXTINT_DISABLE(IRQ);
 }
 
 
-void IRQ_HANDLER(void)
+IRQ_HANDLER(IRQ)
 {
 	uint8_t irq, state;
 
-	EXTI_ClearITPendingBit(EXTI_Line(BIT_IRQ));
+	EXTI_ClearITPendingBit(1 << BIT_IRQ);
 	irq = register_read_unsafe(RG_IRQ_STATUS);
 
 	if (!(irq & IRQ_TRX_END))
@@ -275,29 +284,16 @@ void HAL_LEAVE_CRITICAL_REGION(void)
 
 void hal_init(void)
 {
-	static NVIC_InitTypeDef nvic_init = {
-		.NVIC_IRQChannel	= IRQn,
-		.NVIC_IRQChannelPreemptionPriority = 8,	/* 0-15; @@@ ? */
-		.NVIC_IRQChannelSubPriority = 0,	/* not on FreeRTOS */
-		.NVIC_IRQChannelCmd	= ENABLE,
-	};
+	spi = SPI_DEV_INIT;
+	spi_init(&spi);
 
-	enable_spi_clocks();
-	spi_init();
-
-	GPIO_ENABLE(SLP_TR);
-	GPIO_ENABLE(IRQ);
-
-	CLR(SLP_TR);
-
-	OUT(SLP_TR);
-	IN(IRQ);
+	slp_tr = GPIO_ENABLE(SLP_TR);
+	CLR(slp_tr);
+	OUT(slp_tr);
 
 	hal_register_read(RG_IRQ_STATUS);
+	EXTINT_SETUP(IRQ);
 
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);
-	NVIC_Init(&nvic_init);
-	SYSCFG_EXTILineConfig(EXTI_PortSource, EXTI_PinSource(BIT_IRQ));
 	hal_enable_trx_interrupt();
 
 	/*

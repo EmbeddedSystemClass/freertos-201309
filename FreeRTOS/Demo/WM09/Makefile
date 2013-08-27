@@ -51,14 +51,14 @@ clean::
 #
 # Hardware layout options:
 #
-# CFLAGS	HAL		SPI	Description
-# -------------	---------------	-------	---------------------------------------
-# -DDEV9	rf230-hal-spi	spi-hw	USI WM-N-BM-09 EVB, atben on DEV9, SPI device
+# HAL		SPI		Description
+# -------------	---------------	-----------------------------------------------
+# rf230-hal	spi-stm32	USI WM-N-BM-09 EVB, atben on DEV9, SPI device
+# rf230-hal	spi-gpio	USI WM-N-BM-09 EVB, atben on DEV9, bit-banging
 #
 
-CFLAGS += -DDEV9
-HAL = rf230-hal-spi
-SPI = spi-hw
+HAL = rf230-hal
+SPI = spi-stm32
 
 EUI64 = 0xa0,0,0,0,0,0,0,3
 RF_CHANNEL = 11 
