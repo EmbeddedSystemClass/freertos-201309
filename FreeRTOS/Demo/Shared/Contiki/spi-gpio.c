@@ -9,24 +9,24 @@
 #include <stdint.h>
 
 #include "gpio.h"
-#include "spi.h"
+#include "spi-gpio.h"
 
 #include "platform.h"
 
 
-void spi_begin(void)
+void spi_gpio_begin(struct spi *spi)
 {
 	CLR(nSEL);
 }
 
 
-void spi_end(void)
+void spi_gpio_end(struct spi *spi)
 {
 	SET(nSEL);
 }
 
 
-void spi_send(uint8_t v)
+void spi_gpio_send(struct spi *spi, uint8_t v)
 {
 	uint8_t mask;
 
@@ -43,12 +43,12 @@ void spi_send(uint8_t v)
 }
 
 
-void spi_begin_rx(void)
+void spi_gpio_begin_rx(struct spi *spi)
 {
 }
 
 
-uint8_t spi_recv(void)
+uint8_t spi_gpio_recv(struct spi *spi)
 {
 	uint8_t res = 0;
 	uint8_t mask;
@@ -65,7 +65,7 @@ uint8_t spi_recv(void)
 }
 
 
-void spi_init(void)
+void spi_gpio_init(struct spi *spi)
 {
 	GPIO_ENABLE(MOSI);
 	GPIO_ENABLE(MISO);

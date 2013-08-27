@@ -85,11 +85,11 @@ static uint8_t register_read_unsafe(uint8_t address)
 {
 	uint8_t res;
 
-	spi_begin();
-	spi_send(AT86RF230_REG_READ | address);
-	spi_begin_rx();
-	res = spi_recv();
-	spi_end();
+	spi_begin(SPI_DEV);
+	spi_send(SPI_DEV, AT86RF230_REG_READ | address);
+	spi_begin_rx(SPI_DEV);
+	res = spi_recv(SPI_DEV);
+	spi_end(SPI_DEV);
 	return res;
 }
 
@@ -107,10 +107,10 @@ uint8_t hal_register_read(uint8_t address)
 
 static void register_write_unsafe(uint8_t address, uint8_t value)
 {
-	spi_begin();
-	spi_send(AT86RF230_REG_WRITE | address);
-	spi_send(value);
-	spi_end();
+	spi_begin(SPI_DEV);
+	spi_send(SPI_DEV, AT86RF230_REG_WRITE | address);
+	spi_send(SPI_DEV, value);
+	spi_end(SPI_DEV);
 }
 
 
@@ -165,16 +165,16 @@ static void frame_read_unsafe(hal_rx_frame_t *rx_frame)
 	uint8_t *buf = rx_frame->data;
 	uint8_t i;
 
-	spi_begin();
-	spi_send(AT86RF230_BUF_READ);
-	spi_begin_rx();
-	rx_frame->length = spi_recv();
+	spi_begin(SPI_DEV);
+	spi_send(SPI_DEV, AT86RF230_BUF_READ);
+	spi_begin_rx(SPI_DEV);
+	rx_frame->length = spi_recv(SPI_DEV);
 	if (rx_frame->length > HAL_MAX_FRAME_LENGTH)
 		rx_frame->length = HAL_MAX_FRAME_LENGTH;
 	for (i = 0; i != rx_frame->length; i++)
-		*(uint8_t *) buf++ = spi_recv();
-	rx_frame->lqi = spi_recv();
-        spi_end();
+		*(uint8_t *) buf++ = spi_recv(SPI_DEV);
+	rx_frame->lqi = spi_recv(SPI_DEV);
+        spi_end(SPI_DEV);
 	rx_frame->crc = true;	/* checked by hardware */
 }
 
@@ -196,12 +196,12 @@ void hal_frame_read(hal_rx_frame_t *rx_frame)
 void hal_frame_write(uint8_t *write_buffer, uint8_t length)
 {
 	HAL_ENTER_CRITICAL_REGION();
-	spi_begin();
-	spi_send(AT86RF230_BUF_WRITE);
-	spi_send(length);
+	spi_begin(SPI_DEV);
+	spi_send(SPI_DEV, AT86RF230_BUF_WRITE);
+	spi_send(SPI_DEV, length);
 	while (length--)
-		spi_send(*(uint8_t *) write_buffer++);
-	spi_end();
+		spi_send(SPI_DEV, *(uint8_t *) write_buffer++);
+	spi_end(SPI_DEV);
 	HAL_LEAVE_CRITICAL_REGION();
 }
 
@@ -280,7 +280,7 @@ void HAL_LEAVE_CRITICAL_REGION(void)
 
 void hal_init(void)
 {
-	spi_init();
+	spi_init(SPI_DEV);
 
 	GPIO_ENABLE(SLP_TR);
 	CLR(SLP_TR);

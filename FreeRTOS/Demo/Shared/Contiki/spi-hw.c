@@ -11,7 +11,7 @@
 #include STM32_CONF_H
 
 #include "gpio.h"
-#include "spi.h"
+#include "spi-hw.h"
 
 #include "platform.h"
 
@@ -78,13 +78,13 @@ static void inline delay_1us(void)
 }
 
 
-void spi_begin(void)
+void spi_begin(SPI_TypeDef *spi)
 {
 	CLR(nSEL);
 }
 
 
-void spi_end(void)
+void spi_end(SPI_TypeDef *spi)
 {
 	/*
 	 * RM0090 Reference manual, 27.3.9: "[...] As a consequence, it is
@@ -92,20 +92,20 @@ void spi_end(void)
 	 * writing the last data."
 	 */
 
-	while (SPI_I2S_GetFlagStatus(SPI_DEV, SPI_I2S_FLAG_TXE) == RESET);
-	while (SPI_I2S_GetFlagStatus(SPI_DEV, SPI_I2S_FLAG_BSY) == SET);
+	while (SPI_I2S_GetFlagStatus(spi, SPI_I2S_FLAG_TXE) == RESET);
+	while (SPI_I2S_GetFlagStatus(spi, SPI_I2S_FLAG_BSY) == SET);
 	SET(nSEL);
 }
 
 
-void spi_send(uint8_t v)
+void spi_send(SPI_TypeDef *spi, uint8_t v)
 {
-	SPI_I2S_SendData(SPI_DEV, v);
-	while (SPI_I2S_GetFlagStatus(SPI_DEV, SPI_I2S_FLAG_TXE) == RESET);
+	SPI_I2S_SendData(spi, v);
+	while (SPI_I2S_GetFlagStatus(spi, SPI_I2S_FLAG_TXE) == RESET);
 }
 
 
-void spi_begin_rx(void)
+void spi_begin_rx(SPI_TypeDef *spi)
 {
 	/*
 	 * If we did a series of writes, we'll have overrun the receiver.
@@ -116,13 +116,13 @@ void spi_begin_rx(void)
 	 * We also have to discard any stale data sitting in the receiver.
 	 */
 
-	while (SPI_I2S_GetFlagStatus(SPI_DEV, SPI_I2S_FLAG_BSY) == SET);
-	(void) SPI_I2S_GetFlagStatus(SPI_DEV, SPI_I2S_FLAG_OVR);
-	(void) SPI_I2S_ReceiveData(SPI_DEV);
+	while (SPI_I2S_GetFlagStatus(spi, SPI_I2S_FLAG_BSY) == SET);
+	(void) SPI_I2S_GetFlagStatus(spi, SPI_I2S_FLAG_OVR);
+	(void) SPI_I2S_ReceiveData(spi);
 }
 
 
-uint8_t spi_recv(void)
+uint8_t spi_recv(SPI_TypeDef *spi)
 {
 	/*
 	 * The AT86RF231 requires a delay of 250 ns between the LSB of the
@@ -132,9 +132,9 @@ uint8_t spi_recv(void)
 
 	delay_1us();
 
-	SPI_I2S_SendData(SPI_DEV, 0);
-	while (SPI_I2S_GetFlagStatus(SPI_DEV, SPI_I2S_FLAG_RXNE) == RESET);
-	return SPI_I2S_ReceiveData(SPI_DEV);
+	SPI_I2S_SendData(spi, 0);
+	while (SPI_I2S_GetFlagStatus(spi, SPI_I2S_FLAG_RXNE) == RESET);
+	return SPI_I2S_ReceiveData(spi);
 }
 
 
@@ -171,7 +171,7 @@ static int spi_to_num(SPI_TypeDef *spi)
 }
 
 
-void spi_init(void)
+void spi_init(SPI_TypeDef *spi)
 {
 	static SPI_InitTypeDef spi_init = {
 		.SPI_Direction	= SPI_Direction_2Lines_FullDuplex,
@@ -198,9 +198,9 @@ void spi_init(void)
 
 	OUT(nSEL);
 
-	n = spi_to_num(SPI_DEV);
+	n = spi_to_num(spi);
 	spi_rcc_fn[n](spi_rcc[n], ENABLE);
 
-	SPI_Init(SPI_DEV, &spi_init);
-	SPI_Cmd(SPI_DEV, ENABLE);
+	SPI_Init(spi, &spi_init);
+	SPI_Cmd(spi, ENABLE);
 }
