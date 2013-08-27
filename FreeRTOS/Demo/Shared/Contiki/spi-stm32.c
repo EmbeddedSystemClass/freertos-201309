@@ -171,7 +171,7 @@ static int spi_to_num(SPI_TypeDef *spi)
 }
 
 
-void spi_init(struct spi *spi)
+void spi_init(const struct spi *spi)
 {
 	static SPI_InitTypeDef spi_init = {
 		.SPI_Direction	= SPI_Direction_2Lines_FullDuplex,
@@ -183,18 +183,11 @@ void spi_init(struct spi *spi)
 		.SPI_BaudRatePrescaler = SPI_PRESCALER,
 		.SPI_FirstBit	= SPI_FirstBit_MSB,
 	};
-	unsigned mosi, miso, sclk;
 	int n;
 
-	spi->dev = SPI_DEV;
-	mosi = GPIO_ENABLE(MOSI);
-	miso = GPIO_ENABLE(MISO);
-	sclk = GPIO_ENABLE(SCLK);
-	spi->nsel = GPIO_ENABLE(nSEL);
-
-	GPIO_AF_SPI(mosi);
-	GPIO_AF_SPI(miso);
-	GPIO_AF_SPI(sclk);
+	GPIO_AF_SPI(spi->mosi);
+	GPIO_AF_SPI(spi->miso);
+	GPIO_AF_SPI(spi->sclk);
 
 	SET(spi->nsel);
 	OUT(spi->nsel);

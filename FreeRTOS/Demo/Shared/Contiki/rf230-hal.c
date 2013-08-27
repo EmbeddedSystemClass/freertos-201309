@@ -284,6 +284,7 @@ void HAL_LEAVE_CRITICAL_REGION(void)
 
 void hal_init(void)
 {
+	spi = SPI_DEV_INIT;
 	spi_init(&spi);
 
 	slp_tr = GPIO_ENABLE(SLP_TR);

@@ -13,7 +13,17 @@
 
 struct spi {
 	SPI_TypeDef *dev;
-	unsigned nsel;
+	unsigned  mosi, miso, sclk, nsel;
 };
+
+
+#define	SPI_STM32_DEV(_dev, _mosi, _miso, _sclk, _nsel) \
+	(struct spi) {				\
+		.dev = _dev,			\
+		.mosi = GPIO_ENABLE(_mosi),	\
+		.miso = GPIO_ENABLE(_miso),	\
+		.sclk = GPIO_ENABLE(_sclk),	\
+		.nsel = GPIO_ENABLE(_nsel)	\
+	}
 
 #endif /* !SPI_STM32_H */

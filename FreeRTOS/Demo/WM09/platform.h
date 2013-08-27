@@ -41,7 +41,7 @@
 #define	PORT_SCLK	GPIOA
 #define	BIT_SCLK	5
 
-#define	SPI_DEV		SPI1
+#define	SPI_DEV_INIT	SPI_STM32_DEV(SPI1, MOSI, MISO, SCLK, nSEL)
 #define	SPI_AF		GPIO_AF_SPI1
 
 #define	SPI_PRESCALER	SPI_BaudRatePrescaler_8
