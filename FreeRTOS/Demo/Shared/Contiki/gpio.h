@@ -70,7 +70,4 @@ void gpio_af_spi(unsigned id);
 unsigned gpio_enable(GPIO_TypeDef *gpio, int bit);
 void gpio_disable(unsigned id);
 
-void gpio_enable(GPIO_TypeDef *gpio, int bit);
-void gpio_disable(GPIO_TypeDef *gpio, int bit);
-
 #endif /* !GPIO_H */
