@@ -16,9 +16,6 @@
 #include "platform.h"
 
 
-static unsigned nsel;
-
-
 /* ----- RCC_APBxPeriphClockCmd function (by SPI device index) ------------- */
 
 
@@ -75,19 +72,19 @@ static const uint32_t spi_rcc[] = {
 /* ----- SPI communication ------------------------------------------------- */
 
 
-static void inline delay_1us(void)
+static void inline delay_1us(const struct spi *spi)
 {
-	IN(nsel);
+	IN(spi->nsel);
 }
 
 
-void spi_begin(SPI_TypeDef *spi)
+void spi_begin(const struct spi *spi)
 {
-	CLR(nsel);
+	CLR(spi->nsel);
 }
 
 
-void spi_end(SPI_TypeDef *spi)
+void spi_end(const struct spi *spi)
 {
 	/*
 	 * RM0090 Reference manual, 27.3.9: "[...] As a consequence, it is
@@ -95,20 +92,20 @@ void spi_end(SPI_TypeDef *spi)
 	 * writing the last data."
 	 */
 
-	while (SPI_I2S_GetFlagStatus(spi, SPI_I2S_FLAG_TXE) == RESET);
-	while (SPI_I2S_GetFlagStatus(spi, SPI_I2S_FLAG_BSY) == SET);
-	SET(nsel);
+	while (SPI_I2S_GetFlagStatus(spi->dev, SPI_I2S_FLAG_TXE) == RESET);
+	while (SPI_I2S_GetFlagStatus(spi->dev, SPI_I2S_FLAG_BSY) == SET);
+	SET(spi->nsel);
 }
 
 
-void spi_send(SPI_TypeDef *spi, uint8_t v)
+void spi_send(const struct spi *spi, uint8_t v)
 {
-	SPI_I2S_SendData(spi, v);
-	while (SPI_I2S_GetFlagStatus(spi, SPI_I2S_FLAG_TXE) == RESET);
+	SPI_I2S_SendData(spi->dev, v);
+	while (SPI_I2S_GetFlagStatus(spi->dev, SPI_I2S_FLAG_TXE) == RESET);
 }
 
 
-void spi_begin_rx(SPI_TypeDef *spi)
+void spi_begin_rx(const struct spi *spi)
 {
 	/*
 	 * If we did a series of writes, we'll have overrun the receiver.
@@ -119,13 +116,13 @@ void spi_begin_rx(SPI_TypeDef *spi)
 	 * We also have to discard any stale data sitting in the receiver.
 	 */
 
-	while (SPI_I2S_GetFlagStatus(spi, SPI_I2S_FLAG_BSY) == SET);
-	(void) SPI_I2S_GetFlagStatus(spi, SPI_I2S_FLAG_OVR);
-	(void) SPI_I2S_ReceiveData(spi);
+	while (SPI_I2S_GetFlagStatus(spi->dev, SPI_I2S_FLAG_BSY) == SET);
+	(void) SPI_I2S_GetFlagStatus(spi->dev, SPI_I2S_FLAG_OVR);
+	(void) SPI_I2S_ReceiveData(spi->dev);
 }
 
 
-uint8_t spi_recv(SPI_TypeDef *spi)
+uint8_t spi_recv(const struct spi *spi)
 {
 	/*
 	 * The AT86RF231 requires a delay of 250 ns between the LSB of the
@@ -133,11 +130,11 @@ uint8_t spi_recv(SPI_TypeDef *spi)
 	 * here because that's the delay a port read produces.
 	 */
 
-	delay_1us();
+	delay_1us(spi);
 
-	SPI_I2S_SendData(spi, 0);
-	while (SPI_I2S_GetFlagStatus(spi, SPI_I2S_FLAG_RXNE) == RESET);
-	return SPI_I2S_ReceiveData(spi);
+	SPI_I2S_SendData(spi->dev, 0);
+	while (SPI_I2S_GetFlagStatus(spi->dev, SPI_I2S_FLAG_RXNE) == RESET);
+	return SPI_I2S_ReceiveData(spi->dev);
 }
 
 
@@ -174,7 +171,7 @@ static int spi_to_num(SPI_TypeDef *spi)
 }
 
 
-void spi_init(SPI_TypeDef *spi)
+void spi_init(struct spi *spi)
 {
 	static SPI_InitTypeDef spi_init = {
 		.SPI_Direction	= SPI_Direction_2Lines_FullDuplex,
@@ -189,21 +186,22 @@ void spi_init(SPI_TypeDef *spi)
 	unsigned mosi, miso, sclk;
 	int n;
 
+	spi->dev = SPI_DEV;
 	mosi = GPIO_ENABLE(MOSI);
 	miso = GPIO_ENABLE(MISO);
 	sclk = GPIO_ENABLE(SCLK);
-	nsel = GPIO_ENABLE(nSEL);
+	spi->nsel = GPIO_ENABLE(nSEL);
 
 	GPIO_AF_SPI(mosi);
 	GPIO_AF_SPI(miso);
 	GPIO_AF_SPI(sclk);
 
-	SET(nsel);
-	OUT(nsel);
+	SET(spi->nsel);
+	OUT(spi->nsel);
 
-	n = spi_to_num(spi);
+	n = spi_to_num(spi->dev);
 	spi_rcc_fn[n](spi_rcc[n], ENABLE);
 
-	SPI_Init(spi, &spi_init);
-	SPI_Cmd(spi, ENABLE);
+	SPI_Init(spi->dev, &spi_init);
+	SPI_Cmd(spi->dev, ENABLE);
 }

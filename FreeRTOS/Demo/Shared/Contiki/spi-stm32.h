@@ -8,16 +8,12 @@
 #ifndef SPI_STM32_H
 #define	SPI_STM32_H
 
-#include <stdint.h>
-
 #include STM32_CONF_H
 
 
-void spi_begin(SPI_TypeDef *spi);
-void spi_end(SPI_TypeDef *spi);
-void spi_send(SPI_TypeDef *spi, uint8_t v);
-void spi_begin_rx(SPI_TypeDef *spi);
-uint8_t spi_recv(SPI_TypeDef *spi);
-void spi_init(SPI_TypeDef *spi);
+struct spi {
+	SPI_TypeDef *dev;
+	unsigned nsel;
+};
 
 #endif /* !SPI_STM32_H */

@@ -8,6 +8,8 @@
 #ifndef SPI_H
 #define	SPI_H
 
+#include <stdint.h>
+
 #include "platform.h"
 
 
@@ -22,5 +24,13 @@
 #undef	__HDR
 #undef	__HDR_1
 #undef	__HDR_2
+
+
+void spi_begin(const struct spi *spi);
+void spi_end(const struct spi *spi);
+void spi_send(const struct spi *spi, uint8_t v);
+void spi_begin_rx(const struct spi *spi);
+uint8_t spi_recv(const struct spi *spi);
+void spi_init(struct spi *spi);
 
 #endif /* !SPI_H */
