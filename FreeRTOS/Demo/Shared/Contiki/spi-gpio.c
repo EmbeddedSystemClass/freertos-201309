@@ -17,19 +17,19 @@
 static unsigned mosi, miso, sclk, nsel;
 
 
-void spi_gpio_begin(struct spi *spi)
+void spi_gpio_begin(void)
 {
 	CLR(nsel);
 }
 
 
-void spi_gpio_end(struct spi *spi)
+void spi_gpio_end(void)
 {
 	SET(nsel);
 }
 
 
-void spi_gpio_send(struct spi *spi, uint8_t v)
+void spi_gpio_send(uint8_t v)
 {
 	uint8_t mask;
 
@@ -46,12 +46,12 @@ void spi_gpio_send(struct spi *spi, uint8_t v)
 }
 
 
-void spi_gpio_begin_rx(struct spi *spi)
+void spi_gpio_begin_rx(void)
 {
 }
 
 
-uint8_t spi_gpio_recv(struct spi *spi)
+uint8_t spi_gpio_recv(void)
 {
 	uint8_t res = 0;
 	uint8_t mask;
@@ -68,7 +68,7 @@ uint8_t spi_gpio_recv(struct spi *spi)
 }
 
 
-void spi_gpio_init(struct spi *spi)
+void spi_gpio_init(void)
 {
 	mosi = GPIO_ENABLE(MOSI);
 	miso = GPIO_ENABLE(MISO);

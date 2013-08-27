@@ -1,12 +1,12 @@
 /*
- * spi.h - General SPI interface
+ * spi-gpio.h - Bit-banging SPI interface
  *
  * Developed by Werner Almesberger for Actility S.A., and
  * licensed under LGPLv2 by Actility S.A.
  */
 
-#ifndef SPI_H
-#define	SPI_H
+#ifndef SPI_GPIO_H
+#define	SPI_GPIO_H
 
 #include <stdint.h>
 
@@ -25,4 +25,4 @@ void spi_gpio_begin_rx(void);
 uint8_t spi_gpio_recv(void);
 void spi_gpio_init(void);
 
-#endif /* !SPI_H */
+#endif /* !SPI_GPIO_H */
