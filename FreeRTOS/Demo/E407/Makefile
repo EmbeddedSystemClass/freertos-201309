@@ -59,11 +59,11 @@ clean::
 # CFLAGS	HAL		SPI	Description
 # -------------	---------------	-------	-----------------------------------------------
 # (none)	rf230-hal	spi-gpio Olimex STM32-E407, atben in uSD slot
-# -DODEV_GPIO	rf230-hal	spi-gpio Olimex STM32-E407, atben on ODEV, bit-banging
-# -DODEV_SPI	rf230-hal	spi-hw	Olimex STM32-E407, atben on ODEV, SPI device
+# -DODEV	rf230-hal	spi-gpio Olimex STM32-E407, atben on ODEV, bit-banging
+# -DODEV	rf230-hal	spi-hw	Olimex STM32-E407, atben on ODEV, SPI device
 #
 
-CFLAGS += -DODEV_SPI
+CFLAGS += -DODEV
 HAL = rf230-hal
 SPI = spi-hw
 

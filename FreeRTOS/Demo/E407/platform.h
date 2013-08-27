@@ -30,7 +30,7 @@
 /* ----- uSD slot ---------------------------------------------------------- */
 
 
-#if !defined(ODEV_GPIO) && !defined(ODEV_SPI)
+#ifndef ODEV
 
 #define	PORT_IRQ	GPIOC
 #define	BIT_IRQ		10
@@ -45,13 +45,13 @@
 #define	PORT_SCLK	GPIOC
 #define	BIT_SCLK	9
 
-#endif /* !ODEV_GPIO && !ODEV_SPI */
+#endif /* !ODEV */
 
 
 /* ----- ODEV (GPIO or SPI) ------------------------------------------------ */
 
 
-#if defined(ODEV_GPIO) || defined(ODEV_SPI)
+#ifdev ODEV
 
 #define	PORT_IRQ	GPIOG
 #define	BIT_IRQ		10
@@ -72,6 +72,6 @@
 #define	SPI_PRESCALER	SPI_BaudRatePrescaler_8
 			/* APB1 = 42 MHz; 42 MHz / 8 = 5.25 MHz */
 
-#endif /* ODEV_GPIO || ODEV_SPI */
+#endif /* ODEV */
 
 #endif /* !PLATFORM_H */
