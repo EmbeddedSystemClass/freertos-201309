@@ -103,9 +103,7 @@ void gpio_inout(unsigned id, bool out)
 }
 
 
-#ifdef SPI_AF
-
-void gpio_af_spi(unsigned id)
+void gpio_af(unsigned id, uint8_t af)
 {
 	GPIO_InitTypeDef gpio_init = {
 		.GPIO_Pin	= 1 << gpio_id_bit(id),
@@ -115,11 +113,9 @@ void gpio_af_spi(unsigned id)
 		.GPIO_PuPd	= GPIO_PuPd_DOWN,
 	};
 
-	GPIO_PinAFConfig(gpiox[gpio_id_port(id)], gpio_id_bit(id), SPI_AF);
+	GPIO_PinAFConfig(gpiox[gpio_id_port(id)], gpio_id_bit(id), af);
 	GPIO_Init(gpiox[gpio_id_port(id)], &gpio_init);
 }
-
-#endif /* SPI_AF */
 
 
 /* ----- GPIO enable/disable ----------------------------------------------- */

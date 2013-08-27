@@ -57,7 +57,6 @@ extern GPIO_TypeDef *const gpiox[];
 /* ----- Setup ------------------------------------------------------------- */
 
 
-#define	GPIO_AF_SPI(id)			gpio_af_spi(id)
 #define	GPIO_ENABLE(pin)		gpio_enable(PORT_##pin, BIT_##pin)
 #define	GPIO_DISABLE(id)		gpio_disable(id)
 
@@ -65,7 +64,7 @@ extern GPIO_TypeDef *const gpiox[];
 int gpio_num(GPIO_TypeDef *gpio);
 
 void gpio_inout(unsigned id, bool out);
-void gpio_af_spi(unsigned id);
+void gpio_af(unsigned id, uint8_t af);
 
 unsigned gpio_enable(GPIO_TypeDef *gpio, int bit);
 void gpio_disable(unsigned id);

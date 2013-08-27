@@ -50,8 +50,6 @@
 #define	SPI_DEV_INIT	SPI_GPIO_DEV(MOSI, MISO, SCLK, nSEL)
 #endif
 
-#define	SPI_AF		GPIO_AF_SPI1
-
 #define	SPI_PRESCALER	SPI_BaudRatePrescaler_8
 			/* APB2 = 60 MHz; 60 MHz / 8 = 7.5 MHz */
 

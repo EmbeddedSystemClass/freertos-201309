@@ -69,6 +69,31 @@ static const uint32_t spi_rcc[] = {
 };
 
 
+/* ----- GPIO_AF_SPI2x value (by SPI device index) ------------------------- */
+
+
+static const uint8_t spi_gpio_af[] = {
+#ifdef SPI1
+	GPIO_AF_SPI1,
+#endif
+#ifdef SPI2
+	GPIO_AF_SPI2,
+#endif
+#ifdef SPI3
+	GPIO_AF_SPI3,
+#endif
+#ifdef SPI4
+	GPIO_AF_SPI4,
+#endif
+#ifdef SPI5
+	GPIO_AF_SPI5,
+#endif
+#ifdef SPI6
+	GPIO_AF_SPI6,
+#endif
+};
+
+
 /* ----- SPI communication ------------------------------------------------- */
 
 
@@ -183,16 +208,15 @@ void spi_init(const struct spi *spi)
 		.SPI_BaudRatePrescaler = SPI_PRESCALER,
 		.SPI_FirstBit	= SPI_FirstBit_MSB,
 	};
-	int n;
+	int n = spi_to_num(spi->dev);
 
-	GPIO_AF_SPI(spi->mosi);
-	GPIO_AF_SPI(spi->miso);
-	GPIO_AF_SPI(spi->sclk);
+	gpio_af(spi->mosi, spi_gpio_af[n]);
+	gpio_af(spi->miso, spi_gpio_af[n]);
+	gpio_af(spi->sclk, spi_gpio_af[n]);
 
 	SET(spi->nsel);
 	OUT(spi->nsel);
 
-	n = spi_to_num(spi->dev);
 	spi_rcc_fn[n](spi_rcc[n], ENABLE);
 
 	SPI_Init(spi->dev, &spi_init);
