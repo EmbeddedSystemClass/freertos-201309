@@ -41,7 +41,15 @@
 #define	PORT_SCLK	GPIOA
 #define	BIT_SCLK	5
 
+/* @@@ this feature probe is a little ugly ...  */
+
+#include "spi.h"
+#ifdef SPI_STM32_H
 #define	SPI_DEV_INIT	SPI_STM32_DEV(SPI1, MOSI, MISO, SCLK, nSEL)
+#else
+#define	SPI_DEV_INIT	SPI_GPIO_DEV(MOSI, MISO, SCLK, nSEL)
+#endif
+
 #define	SPI_AF		GPIO_AF_SPI1
 
 #define	SPI_PRESCALER	SPI_BaudRatePrescaler_8
