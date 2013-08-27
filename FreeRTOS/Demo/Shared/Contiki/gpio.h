@@ -18,25 +18,56 @@
 #include STM32_CONF_H
 
 
-#define	OUT(pin)	gpio_inout(PORT_##pin, 1 << BIT_##pin, 1)
-#define	IN(pin)		gpio_inout(PORT_##pin, 1 << BIT_##pin, 0)
-#define	SET(pin)	GPIO_SetBits(PORT_##pin, 1 << BIT_##pin)
-#define	CLR(pin)	GPIO_ResetBits(PORT_##pin, 1 << BIT_##pin)
+/* ----- GPIO ID (single number to identify pin) --------------------------- */
 
-#define	PIN(pin)	(GPIO_ReadInputDataBit(PORT_##pin, 1 << BIT_##pin) \
-			    == Bit_SET)
 
-#define	GPIO_AF_SPI(pin)		gpio_af_spi(PORT_##pin, BIT_##pin)
+static inline unsigned gpio_id(int port, int bit)
+{
+	return port << 5 | bit;
+}
+
+
+static inline unsigned gpio_id_port(unsigned id)
+{
+	return id >> 5;
+}
+
+
+static inline unsigned gpio_id_bit(unsigned id)
+{
+	return id & 31;
+}
+
+
+/* ----- Pin operations ---------------------------------------------------- */
+
+
+extern GPIO_TypeDef *const gpiox[];
+
+
+#define	OUT(id)	gpio_inout(id, 1)
+#define	IN(id)	gpio_inout(id, 0)
+#define	SET(id)	GPIO_SetBits(gpiox[gpio_id_port(id)], 1 << gpio_id_bit(id))
+#define	CLR(id)	GPIO_ResetBits(gpiox[gpio_id_port(id)], 1 << gpio_id_bit(id))
+
+#define	PIN(id)	(GPIO_ReadInputDataBit(gpiox[gpio_id_port(id)], \
+		    1 << gpio_id_bit(id)) == Bit_SET)
+
+
+/* ----- Setup ------------------------------------------------------------- */
+
+
+#define	GPIO_AF_SPI(id)			gpio_af_spi(id)
 #define	GPIO_ENABLE(pin)		gpio_enable(PORT_##pin, BIT_##pin)
-#define	GPIO_DISABLE(pin)		gpio_disable(PORT_##pin, BIT_##pin)
+#define	GPIO_DISABLE(id)		gpio_disable(id)
 
 
 int gpio_num(GPIO_TypeDef *gpio);
 
-void gpio_inout(GPIO_TypeDef *GPIOx, uint16_t pins, bool out);
-void gpio_af_spi(GPIO_TypeDef *gpio, int bit);
+void gpio_inout(unsigned id, bool out);
+void gpio_af_spi(unsigned id);
 
-void gpio_enable(GPIO_TypeDef *gpio, int bit);
-void gpio_disable(GPIO_TypeDef *gpio, int bit);
+unsigned gpio_enable(GPIO_TypeDef *gpio, int bit);
+void gpio_disable(unsigned id);
 
 #endif /* !GPIO_H */

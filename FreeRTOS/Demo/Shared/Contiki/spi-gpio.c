@@ -14,15 +14,18 @@
 #include "platform.h"
 
 
+static unsigned mosi, miso, sclk, nsel;
+
+
 void spi_gpio_begin(struct spi *spi)
 {
-	CLR(nSEL);
+	CLR(nsel);
 }
 
 
 void spi_gpio_end(struct spi *spi)
 {
-	SET(nSEL);
+	SET(nsel);
 }
 
 
@@ -32,13 +35,13 @@ void spi_gpio_send(struct spi *spi, uint8_t v)
 
 	for (mask = 0x80; mask; mask >>= 1) {
 		if (v & mask)
-			SET(MOSI);
+			SET(mosi);
 		else
-			CLR(MOSI);
-		SET(SCLK);
-		SET(SCLK);
-		SET(SCLK);
-		CLR(SCLK);
+			CLR(mosi);
+		SET(sclk);
+		SET(sclk);
+		SET(sclk);
+		CLR(sclk);
 	}
 }
 
@@ -54,12 +57,12 @@ uint8_t spi_gpio_recv(struct spi *spi)
 	uint8_t mask;
 
 	for (mask = 0x80; mask; mask >>= 1) {
-		if (PIN(MISO))
+		if (PIN(miso))
 			res |= mask;
-		SET(SCLK);
-		SET(SCLK);
-		SET(SCLK);
-		CLR(SCLK);
+		SET(sclk);
+		SET(sclk);
+		SET(sclk);
+		CLR(sclk);
 	}
 	return res;
 }
@@ -67,16 +70,16 @@ uint8_t spi_gpio_recv(struct spi *spi)
 
 void spi_gpio_init(struct spi *spi)
 {
-	GPIO_ENABLE(MOSI);
-	GPIO_ENABLE(MISO);
-	GPIO_ENABLE(SCLK);
-	GPIO_ENABLE(nSEL);
+	mosi = GPIO_ENABLE(MOSI);
+	miso = GPIO_ENABLE(MISO);
+	sclk = GPIO_ENABLE(SCLK);
+	nsel = GPIO_ENABLE(nSEL);
 
-	CLR(SCLK);
-	SET(nSEL);
+	CLR(sclk);
+	SET(nsel);
 
-	OUT(MOSI);
-	IN(MISO);
-	OUT(SCLK);
-	OUT(nSEL);
+	OUT(mosi);
+	IN(miso);
+	OUT(sclk);
+	OUT(nsel);
 }

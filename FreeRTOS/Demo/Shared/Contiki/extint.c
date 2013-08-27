@@ -42,9 +42,10 @@ void extint_setup(GPIO_TypeDef *gpio, int bit)
 		.NVIC_IRQChannelSubPriority = 0,	/* not on FreeRTOS */
 		.NVIC_IRQChannelCmd	= ENABLE,
 	};
+	unsigned id;
 
-	gpio_enable(gpio, bit);
-	gpio_inout(gpio, bit, 0);	/* make input */
+	id = gpio_enable(gpio, bit);
+	gpio_inout(id, 0);	/* make input */
 
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);
 	NVIC_Init(&nvic_init);

@@ -16,6 +16,9 @@
 #include "platform.h"
 
 
+static unsigned nsel;
+
+
 /* ----- RCC_APBxPeriphClockCmd function (by SPI device index) ------------- */
 
 
@@ -74,13 +77,13 @@ static const uint32_t spi_rcc[] = {
 
 static void inline delay_1us(void)
 {
-	IN(MISO);
+	IN(nsel);
 }
 
 
 void spi_begin(SPI_TypeDef *spi)
 {
-	CLR(nSEL);
+	CLR(nsel);
 }
 
 
@@ -94,7 +97,7 @@ void spi_end(SPI_TypeDef *spi)
 
 	while (SPI_I2S_GetFlagStatus(spi, SPI_I2S_FLAG_TXE) == RESET);
 	while (SPI_I2S_GetFlagStatus(spi, SPI_I2S_FLAG_BSY) == SET);
-	SET(nSEL);
+	SET(nsel);
 }
 
 
@@ -183,20 +186,20 @@ void spi_init(SPI_TypeDef *spi)
 		.SPI_BaudRatePrescaler = SPI_PRESCALER,
 		.SPI_FirstBit	= SPI_FirstBit_MSB,
 	};
+	unsigned mosi, miso, sclk;
 	int n;
 
-	GPIO_ENABLE(MOSI);
-	GPIO_ENABLE(MISO);
-	GPIO_ENABLE(SCLK);
-	GPIO_ENABLE(nSEL);
+	mosi = GPIO_ENABLE(MOSI);
+	miso = GPIO_ENABLE(MISO);
+	sclk = GPIO_ENABLE(SCLK);
+	nsel = GPIO_ENABLE(nSEL);
 
-	GPIO_AF_SPI(MOSI);
-	GPIO_AF_SPI(MISO);
-	GPIO_AF_SPI(SCLK);
+	GPIO_AF_SPI(mosi);
+	GPIO_AF_SPI(miso);
+	GPIO_AF_SPI(sclk);
 
-	SET(nSEL);
-
-	OUT(nSEL);
+	SET(nsel);
+	OUT(nsel);
 
 	n = spi_to_num(spi);
 	spi_rcc_fn[n](spi_rcc[n], ENABLE);
