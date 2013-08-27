@@ -1,12 +1,12 @@
 /*
- * spi-hw.h - Hardware-assisted SPI interface
+ * spi-stm32.h - Hardware-assisted SPI interface (STM32)
  *
  * Developed by Werner Almesberger for Actility S.A., and
  * licensed under LGPLv2 by Actility S.A.
  */
 
-#ifndef SPI_HW_H
-#define	SPI_HW_H
+#ifndef SPI_STM32_H
+#define	SPI_STM32_H
 
 #include <stdint.h>
 
@@ -20,4 +20,4 @@ void spi_begin_rx(SPI_TypeDef *spi);
 uint8_t spi_recv(SPI_TypeDef *spi);
 void spi_init(SPI_TypeDef *spi);
 
-#endif /* !SPI_HW_H */
+#endif /* !SPI_STM32_H */

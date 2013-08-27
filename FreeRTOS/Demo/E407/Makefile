@@ -56,16 +56,16 @@ clean::
 #
 # Hardware layout options:
 #
-# CFLAGS	HAL		SPI	Description
-# -------------	---------------	-------	-----------------------------------------------
-# (none)	rf230-hal	spi-gpio Olimex STM32-E407, atben in uSD slot
-# -DODEV	rf230-hal	spi-gpio Olimex STM32-E407, atben on ODEV, bit-banging
-# -DODEV	rf230-hal	spi-hw	Olimex STM32-E407, atben on ODEV, SPI device
+# CFLAGS	HAL		SPI		Description
+# -------------	---------------	---------------	-----------------------------------------------
+# (none)	rf230-hal	spi-gpio 	Olimex STM32-E407, atben in uSD slot
+# -DODEV	rf230-hal	spi-gpio 	Olimex STM32-E407, atben on ODEV, bit-banging
+# -DODEV	rf230-hal	spi-stm32	Olimex STM32-E407, atben on ODEV, SPI device
 #
 
 CFLAGS += -DODEV
 HAL = rf230-hal
-SPI = spi-hw
+SPI = spi-stm32
 
 EUI64 = 0xa0,0,0,0,0,0,0,3
 RF_CHANNEL = 11

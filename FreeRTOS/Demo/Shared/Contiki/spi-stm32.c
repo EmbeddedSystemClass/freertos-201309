@@ -1,5 +1,5 @@
 /*
- * spi-hw.c - Hardware-assisted SPI interface
+ * spi-stm32.c - Hardware-assisted SPI interface (STM32)
  *
  * Developed by Werner Almesberger for Actility S.A., and
  * licensed under LGPLv2 by Actility S.A.
@@ -11,7 +11,7 @@
 #include STM32_CONF_H
 
 #include "gpio.h"
-#include "spi-hw.h"
+#include "spi-stm32.h"
 
 #include "platform.h"
 
