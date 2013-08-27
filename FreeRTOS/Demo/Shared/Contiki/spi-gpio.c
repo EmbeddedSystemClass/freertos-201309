@@ -11,8 +11,6 @@
 #include "gpio.h"
 #include "spi-gpio.h"
 
-#include "platform.h"
-
 
 void spi_begin(const struct spi *spi)
 {

@@ -10,8 +10,6 @@
 
 #include <stdint.h>
 
-#include "platform.h"
-
 
 /* include $(SPI).h */
 
