@@ -51,7 +51,7 @@
 /* ----- ODEV (GPIO or SPI) ------------------------------------------------ */
 
 
-#ifdev ODEV
+#ifdef ODEV
 
 #define	PORT_IRQ	GPIOG
 #define	BIT_IRQ		10
@@ -66,12 +66,17 @@
 #define	PORT_SCLK	GPIOB
 #define	BIT_SCLK	10
 
-#define	SPI_DEV		SPI2
-#define	SPI_AF		GPIO_AF_SPI2
 
-#define	SPI_PRESCALER	SPI_BaudRatePrescaler_8
-			/* APB1 = 42 MHz; 42 MHz / 8 = 5.25 MHz */
+/* @@@ this feature probe is a little ugly ...  */
 
+#include "spi.h"
+#ifdef SPI_STM32_H
+#define	SPI_DEV_INIT	SPI_STM32_DEV(SPI2, MOSI, MISO, SCLK, nSEL, \
+			    SPI_BaudRatePrescaler_8)
+			    /* APB1 = 42 MHz; 42 MHz / 8 = 5.25 MHz */
+#else
+#define	SPI_DEV_INIT	SPI_GPIO_DEV(MOSI, MISO, SCLK, nSEL)
+#endif
 #endif /* ODEV */
 
 #endif /* !PLATFORM_H */
