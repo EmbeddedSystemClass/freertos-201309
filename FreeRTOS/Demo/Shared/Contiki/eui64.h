@@ -14,6 +14,8 @@
 extern uint8_t eui64[8];
 
 
+void platform_eui64(uint8_t *eui);
+
 void init_eui64(void);
 
 #endif /* !EUI64_H */
