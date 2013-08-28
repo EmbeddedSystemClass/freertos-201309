@@ -45,12 +45,11 @@
 
 #include "spi.h"
 #ifdef SPI_STM32_H
-#define	SPI_DEV_INIT	SPI_STM32_DEV(SPI1, MOSI, MISO, SCLK, nSEL)
+#define	SPI_DEV_INIT	SPI_STM32_DEV(SPI1, MOSI, MISO, SCLK, nSEL, \
+			    SPI_BaudRatePrescaler_8)
+			    /* APB2 = 60 MHz; 60 MHz / 8 = 7.5 MHz */
 #else
 #define	SPI_DEV_INIT	SPI_GPIO_DEV(MOSI, MISO, SCLK, nSEL)
 #endif
-
-#define	SPI_PRESCALER	SPI_BaudRatePrescaler_8
-			/* APB2 = 60 MHz; 60 MHz / 8 = 7.5 MHz */
 
 #endif /* !PLATFORM_H */

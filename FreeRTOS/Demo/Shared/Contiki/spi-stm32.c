@@ -13,8 +13,6 @@
 #include "gpio.h"
 #include "spi-stm32.h"
 
-#include "platform.h"
-
 
 /* ----- RCC_APBxPeriphClockCmd function (by SPI device index) ------------- */
 
@@ -198,14 +196,14 @@ static int spi_to_num(SPI_TypeDef *spi)
 
 void spi_init(const struct spi *spi)
 {
-	static SPI_InitTypeDef spi_init = {
+	SPI_InitTypeDef spi_init = {
 		.SPI_Direction	= SPI_Direction_2Lines_FullDuplex,
 		.SPI_Mode	= SPI_Mode_Master,
 		.SPI_DataSize	= SPI_DataSize_8b,
 		.SPI_CPOL	= SPI_CPOL_Low,
 		.SPI_CPHA	= SPI_CPHA_1Edge,
 		.SPI_NSS	= SPI_NSS_Soft,
-		.SPI_BaudRatePrescaler = SPI_PRESCALER,
+		.SPI_BaudRatePrescaler = spi->prescaler,
 		.SPI_FirstBit	= SPI_FirstBit_MSB,
 	};
 	int n = spi_to_num(spi->dev);
