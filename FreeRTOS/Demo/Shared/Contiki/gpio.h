@@ -45,25 +45,48 @@ static inline unsigned gpio_id_bit(unsigned id)
 extern GPIO_TypeDef *const gpiox[];
 
 
-#define	OUT(id)	gpio_inout(id, 1)
-#define	IN(id)	gpio_inout(id, 0)
-#define	SET(id)	GPIO_SetBits(gpiox[gpio_id_port(id)], 1 << gpio_id_bit(id))
-#define	CLR(id)	GPIO_ResetBits(gpiox[gpio_id_port(id)], 1 << gpio_id_bit(id))
+void gpio_inout(unsigned id, bool out);
 
-#define	PIN(id)	(GPIO_ReadInputDataBit(gpiox[gpio_id_port(id)], \
-		    1 << gpio_id_bit(id)) == Bit_SET)
+
+static inline void gpio_out(unsigned id)
+{
+	gpio_inout(id, 1);
+}
+
+
+static inline void gpio_in(unsigned id)
+{
+	gpio_inout(id, 0);
+}
+
+
+static inline void gpio_set(unsigned id)
+{
+	GPIO_SetBits(gpiox[gpio_id_port(id)], 1 << gpio_id_bit(id));
+}
+
+
+static inline void gpio_clr(unsigned id)
+{
+	GPIO_ResetBits(gpiox[gpio_id_port(id)], 1 << gpio_id_bit(id));
+}
+
+
+static inline bool gpio_read(unsigned id)
+{
+	return GPIO_ReadInputDataBit(gpiox[gpio_id_port(id)],
+	    1 << gpio_id_bit(id)) == Bit_SET;
+}
 
 
 /* ----- Setup ------------------------------------------------------------- */
 
 
 #define	GPIO_ENABLE(pin)		gpio_enable(PORT_##pin, BIT_##pin)
-#define	GPIO_DISABLE(id)		gpio_disable(id)
 
 
 int gpio_num(GPIO_TypeDef *gpio);
 
-void gpio_inout(unsigned id, bool out);
 void gpio_af(unsigned id, uint8_t af);
 
 unsigned gpio_enable(GPIO_TypeDef *gpio, int bit);

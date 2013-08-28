@@ -99,13 +99,13 @@ static const uint8_t spi_gpio_af[] = {
 
 static void inline delay_1us(const struct spi *spi)
 {
-	IN(spi->nsel);
+	gpio_in(spi->nsel);
 }
 
 
 void spi_begin(const struct spi *spi)
 {
-	CLR(spi->nsel);
+	gpio_clr(spi->nsel);
 }
 
 
@@ -119,7 +119,7 @@ void spi_end(const struct spi *spi)
 
 	while (SPI_I2S_GetFlagStatus(spi->dev, SPI_I2S_FLAG_TXE) == RESET);
 	while (SPI_I2S_GetFlagStatus(spi->dev, SPI_I2S_FLAG_BSY) == SET);
-	SET(spi->nsel);
+	gpio_set(spi->nsel);
 }
 
 
@@ -214,8 +214,8 @@ void spi_init(const struct spi *spi)
 	gpio_af(spi->miso, spi_gpio_af[n]);
 	gpio_af(spi->sclk, spi_gpio_af[n]);
 
-	SET(spi->nsel);
-	OUT(spi->nsel);
+	gpio_set(spi->nsel);
+	gpio_out(spi->nsel);
 
 	spi_rcc_fn[n](spi_rcc[n], ENABLE);
 

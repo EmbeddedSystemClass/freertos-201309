@@ -66,19 +66,19 @@ void hal_set_rst_high(void)
 
 void hal_set_slptr_high(void)
 {
-	SET(slp_tr);
+	gpio_set(slp_tr);
 }
 
 
 void hal_set_slptr_low(void)
 {
-	CLR(slp_tr);
+	gpio_clr(slp_tr);
 }
 
 
 bool hal_get_slptr(void)
 {
-	return PIN(slp_tr);
+	return gpio_read(slp_tr);
 }
 
 
@@ -288,8 +288,8 @@ void hal_init(void)
 	spi_init(&spi);
 
 	slp_tr = GPIO_ENABLE(SLP_TR);
-	CLR(slp_tr);
-	OUT(slp_tr);
+	gpio_clr(slp_tr);
+	gpio_out(slp_tr);
 
 	hal_register_read(RG_IRQ_STATUS);
 	EXTINT_SETUP(IRQ);

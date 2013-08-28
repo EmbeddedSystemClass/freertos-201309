@@ -14,13 +14,13 @@
 
 void spi_begin(const struct spi *spi)
 {
-	CLR(spi->nsel);
+	gpio_clr(spi->nsel);
 }
 
 
 void spi_end(const struct spi *spi)
 {
-	SET(spi->nsel);
+	gpio_set(spi->nsel);
 }
 
 
@@ -30,13 +30,13 @@ void spi_send(const struct spi *spi, uint8_t v)
 
 	for (mask = 0x80; mask; mask >>= 1) {
 		if (v & mask)
-			SET(spi->mosi);
+			gpio_set(spi->mosi);
 		else
-			CLR(spi->mosi);
-		SET(spi->sclk);
-		SET(spi->sclk);
-		SET(spi->sclk);
-		CLR(spi->sclk);
+			gpio_clr(spi->mosi);
+		gpio_set(spi->sclk);
+		gpio_set(spi->sclk);
+		gpio_set(spi->sclk);
+		gpio_clr(spi->sclk);
 	}
 }
 
@@ -52,12 +52,12 @@ uint8_t spi_recv(const struct spi *spi)
 	uint8_t mask;
 
 	for (mask = 0x80; mask; mask >>= 1) {
-		if (PIN(spi->miso))
+		if (gpio_read(spi->miso))
 			res |= mask;
-		SET(spi->sclk);
-		SET(spi->sclk);
-		SET(spi->sclk);
-		CLR(spi->sclk);
+		gpio_set(spi->sclk);
+		gpio_set(spi->sclk);
+		gpio_set(spi->sclk);
+		gpio_clr(spi->sclk);
 	}
 	return res;
 }
@@ -65,11 +65,11 @@ uint8_t spi_recv(const struct spi *spi)
 
 void spi_init(const struct spi *spi)
 {
-	CLR(spi->sclk);
-	SET(spi->nsel);
+	gpio_clr(spi->sclk);
+	gpio_set(spi->nsel);
 
-	OUT(spi->mosi);
-	IN(spi->miso);
-	OUT(spi->sclk);
-	OUT(spi->nsel);
+	gpio_out(spi->mosi);
+	gpio_in(spi->miso);
+	gpio_out(spi->sclk);
+	gpio_out(spi->nsel);
 }
