@@ -97,7 +97,7 @@ static const uint8_t spi_gpio_af[] = {
 
 static void inline delay_1us(const struct spi *spi)
 {
-	gpio_in(spi->nsel);
+	gpio_read(spi->nsel);
 }
 
 
