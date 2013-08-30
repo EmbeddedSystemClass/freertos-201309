@@ -213,7 +213,7 @@ void spi_init(const struct spi *spi)
 	gpio_af(spi->sclk, spi_gpio_af[n]);
 
 	gpio_set(spi->nsel);
-	gpio_out(spi->nsel);
+	gpio_output(spi->nsel);
 
 	spi_rcc_fn[n](spi_rcc[n], ENABLE);
 

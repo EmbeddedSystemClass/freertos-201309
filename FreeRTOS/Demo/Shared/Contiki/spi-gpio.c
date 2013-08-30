@@ -68,8 +68,8 @@ void spi_init(const struct spi *spi)
 	gpio_clr(spi->sclk);
 	gpio_set(spi->nsel);
 
-	gpio_out(spi->mosi);
-	gpio_in(spi->miso);
-	gpio_out(spi->sclk);
-	gpio_out(spi->nsel);
+	gpio_output(spi->mosi);
+	gpio_input(spi->miso);
+	gpio_output(spi->sclk);
+	gpio_output(spi->nsel);
 }

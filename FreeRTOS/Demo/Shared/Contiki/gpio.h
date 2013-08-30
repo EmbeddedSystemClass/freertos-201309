@@ -48,13 +48,13 @@ extern GPIO_TypeDef *const gpiox[];
 void gpio_inout(unsigned id, bool out);
 
 
-static inline void gpio_out(unsigned id)
+static inline void gpio_output(unsigned id)
 {
 	gpio_inout(id, 1);
 }
 
 
-static inline void gpio_in(unsigned id)
+static inline void gpio_input(unsigned id)
 {
 	gpio_inout(id, 0);
 }

@@ -289,7 +289,7 @@ void hal_init(void)
 
 	slp_tr = GPIO_ENABLE(SLP_TR);
 	gpio_clr(slp_tr);
-	gpio_out(slp_tr);
+	gpio_output(slp_tr);
 
 	hal_register_read(RG_IRQ_STATUS);
 	EXTINT_SETUP(IRQ);
