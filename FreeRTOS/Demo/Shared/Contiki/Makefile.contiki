@@ -8,7 +8,8 @@
 #
 # Path from the platform build directories.
 #
-SHR_CONTIKI_DIR = ../Shared/Contiki
+FREERTOS ?= ../../..
+SHR_CONTIKI_DIR = $(FREERTOS)/FreeRTOS/Demo/Shared/Contiki
 
 CFLAGS += -I$(SHR_CONTIKI_DIR)
 
@@ -50,9 +51,9 @@ OBJS += $(CONTIKI)/contiki-freertos.a
 
 MAKE_CONTIKI = $(MAKE) -C $(CONTIKI) $(CONTIKI_FLAGS) \
     TARGET=freertos CONTIKI_TARGET_CPU=$(CONTIKI_TARGET_CPU) \
-    FREERTOS=$(shell pwd)/../../.. \
+    FREERTOS=$(FREERTOS) \
     FREERTOS_TARGET=$(shell pwd) \
-    FREERTOS_PORTABLE=$(shell pwd)/../../Source/portable/GCC/$(CORE_ARCH)
+    FREERTOS_PORTABLE=$(FREERTOS)/FreeRTOS/Source/portable/GCC/$(CORE_ARCH)
 
 .PHONY:		$(CONTIKI)/foo.co $(CONTIKI)/contiki-freertos.a
 

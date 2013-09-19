@@ -26,6 +26,9 @@ ARCH = arm-none-eabi
 CC = $(ARCH)-gcc
 OBJCOPY = $(ARCH)-objcopy
 
+# Path from the platform build directories.
+FREERTOS ?= ../../..
+
 
 #----- Chip-specific settings -------------------------------------------------
 
@@ -66,8 +69,8 @@ CFLAGS += -I$(DEMO_PATH)/Libraries/$(CHIP_FAMILY)_StdPeriph_Driver/inc
 DRV_DIR = $(DEMO_PATH)/Libraries/$(CHIP_FAMILY)_StdPeriph_Driver/src
 DRIVERS_C = $(DRIVERS:%=$(DRV_DIR)/$(CHIP_FAMILY_LC)_%.c) \
 
-CFLAGS += -I../../Source/portable/GCC/$(CORE_ARCH)
-SRC += ../../Source/portable/GCC/$(CORE_ARCH)/port.c
+CFLAGS += -I$(FREERTOS)/FreeRTOS/Source/portable/GCC/$(CORE_ARCH)
+SRC += $(FREERTOS)/FreeRTOS/Source/portable/GCC/$(CORE_ARCH)/port.c
 
 
 #----- Definitions for the ST demo builder ------------------------------------
@@ -96,7 +99,7 @@ STM_DEMO=http://www.st.com/st-web-ui/static/active/en/st_prod_software_internet/
 #
 # Path from the platform build directories.
 #
-STM32_PATH=../Shared/STM32
+STM32_PATH=$(FREERTOS)/FreeRTOS/Demo/Shared/STM32
 DEMO_PATH=$(STM32_PATH)/$(DEMO_DIR)
 
 TEMPL=$(DEMO_PATH)/Libraries/CMSIS/Device/ST/$(CHIP_FAMILY)/Source/Templates/
