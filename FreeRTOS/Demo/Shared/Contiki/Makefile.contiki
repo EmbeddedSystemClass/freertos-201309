@@ -8,7 +8,7 @@
 #
 # Path from the platform build directories.
 #
-FREERTOS ?= ../../..
+FREERTOS ?= $(shell pwd)/../../..
 SHR_CONTIKI_DIR = $(FREERTOS)/FreeRTOS/Demo/Shared/Contiki
 
 CFLAGS += -I$(SHR_CONTIKI_DIR)
