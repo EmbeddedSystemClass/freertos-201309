@@ -27,7 +27,7 @@ CC = $(ARCH)-gcc
 OBJCOPY = $(ARCH)-objcopy
 
 # Path from the platform build directories.
-FREERTOS ?= ../../..
+FREERTOS ?= $(shell pwd)/../../..
 
 
 #----- Chip-specific settings -------------------------------------------------
