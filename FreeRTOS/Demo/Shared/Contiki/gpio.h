@@ -46,6 +46,7 @@ extern GPIO_TypeDef *const gpiox[];
 
 
 void gpio_inout(unsigned id, bool out);
+void gpio_r(unsigned id, signed char pull);
 
 
 static inline void gpio_output(unsigned id)

@@ -89,17 +89,41 @@ static const uint32_t gpio_rcc[] = {
 /* ----- In/out/function configuration ------------------------------------- */
 
 
-void gpio_inout(unsigned id, bool out)
+#define	NUM_GPIO		(GPIO_BANKS*32)
+
+
+static signed char pull_state[NUM_GPIO];	/* default to no pull */
+static bool out_state[NUM_GPIO];		/* default to input */
+
+
+void gpio_update(unsigned id)
 {
 	GPIO_InitTypeDef gpio_init = {
 		.GPIO_Pin       = 1 << gpio_id_bit(id),
-		.GPIO_Mode      = out ? GPIO_Mode_OUT : GPIO_Mode_IN,
+		.GPIO_Mode      = out_state[id] ? GPIO_Mode_OUT : GPIO_Mode_IN,
 		.GPIO_Speed     = GPIO_Speed_25MHz,
 		.GPIO_OType     = GPIO_OType_PP,
-		.GPIO_PuPd      = GPIO_PuPd_NOPULL,
+		.GPIO_PuPd      = pull_state[id] ?
+				    pull_state[id] > 0 ?
+				      GPIO_PuPd_UP : GPIO_PuPd_DOWN :
+				    GPIO_PuPd_NOPULL,
 	};
 
 	GPIO_Init(gpiox[gpio_id_port(id)], &gpio_init);
+}
+
+
+void gpio_inout(unsigned id, bool out)
+{
+	out_state[id] = out;
+	gpio_update(id);
+}
+
+
+void gpio_r(unsigned id, signed char pull)
+{
+	pull_state[id] = pull;
+	gpio_update(id);
 }
 
 
